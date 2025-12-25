@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { ScrapeResult } from '@/types/job';
+import { NextRequest, NextResponse } from "next/server";
+import { ScrapeResult } from "@/types/job";
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,7 +7,12 @@ export async function POST(request: NextRequest) {
 
     if (!url) {
       return NextResponse.json(
-        { success: false, error: 'URL is required', jobTitle: '', companyName: '' },
+        {
+          success: false,
+          error: "URL is required",
+          jobTitle: "",
+          companyName: "",
+        },
         { status: 400 }
       );
     }
@@ -18,7 +23,12 @@ export async function POST(request: NextRequest) {
       parsedUrl = new URL(url);
     } catch {
       return NextResponse.json(
-        { success: false, error: 'Invalid URL format', jobTitle: '', companyName: '' },
+        {
+          success: false,
+          error: "Invalid URL format",
+          jobTitle: "",
+          companyName: "",
+        },
         { status: 400 }
       );
     }
@@ -26,15 +36,22 @@ export async function POST(request: NextRequest) {
     // Fetch the page content
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
       },
     });
 
     if (!response.ok) {
       return NextResponse.json(
-        { success: false, error: `Failed to fetch page: ${response.status}`, jobTitle: '', companyName: '' },
+        {
+          success: false,
+          error: `Failed to fetch page: ${response.status}`,
+          jobTitle: "",
+          companyName: "",
+        },
         { status: 400 }
       );
     }
@@ -42,32 +59,131 @@ export async function POST(request: NextRequest) {
     const html = await response.text();
 
     // Extract job title and company name using various patterns
-    const result = extractJobInfo(html, parsedUrl.hostname);
+    const result = extractJobInfo(html, parsedUrl.hostname, url);
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Scrape error:', error);
+    console.error("Scrape error:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to scrape the page', jobTitle: '', companyName: '' },
+      {
+        success: false,
+        error: "Failed to scrape the page",
+        jobTitle: "",
+        companyName: "",
+      },
       { status: 500 }
     );
   }
 }
 
-function extractJobInfo(html: string, hostname: string): ScrapeResult {
-  let jobTitle = '';
-  let companyName = '';
+function extractJobInfo(
+  html: string,
+  hostname: string,
+  url?: string
+): ScrapeResult {
+  let jobTitle = "";
+  let companyName = "";
 
   // Try to extract from meta tags first (most reliable)
-  const ogTitle = extractMetaContent(html, 'og:title');
-  const ogSiteName = extractMetaContent(html, 'og:site_name');
+  const ogTitle = extractMetaContent(html, "og:title");
+  const ogSiteName = extractMetaContent(html, "og:site_name");
 
   // Try to get the page title
   const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-  const pageTitle = titleMatch ? decodeHtmlEntities(titleMatch[1].trim()) : '';
+  const pageTitle = titleMatch ? decodeHtmlEntities(titleMatch[1].trim()) : "";
+
+  // DOU.ua specific patterns (Ukrainian job board)
+  if (hostname.includes("dou.ua") || hostname.includes("jobs.dou.ua")) {
+    // Extract company name from URL: /companies/nerdysoft/
+    if (url) {
+      const companyMatch = url.match(/\/companies\/([^\/]+)\//i);
+      if (companyMatch) {
+        companyName = companyMatch[1].replace(/-/g, " ");
+        // Capitalize first letter of each word
+        companyName = companyName.replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+    }
+
+    // Try to extract job title from page - look for h1 with vacancy title
+    const h1Match =
+      html.match(/<h1[^>]*class="[^"]*vacancy[^"]*"[^>]*>([^<]+)<\/h1>/i) ||
+      html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+    if (h1Match) {
+      jobTitle = decodeHtmlEntities(h1Match[1].trim());
+    }
+
+    // Also try to get company from the page content if not found in URL
+    if (!companyName) {
+      const companyLinkMatch = html.match(
+        /<a[^>]*class="[^"]*company[^"]*"[^>]*>([^<]+)<\/a>/i
+      );
+      if (companyLinkMatch) {
+        companyName = decodeHtmlEntities(companyLinkMatch[1].trim());
+      }
+    }
+
+    // Fallback: try og:title which might have format "Job Title — Company"
+    if (!jobTitle && ogTitle) {
+      const douPattern = /^(.+?)\s*[—–-]\s*(.+?)$/;
+      const match = ogTitle.match(douPattern);
+      if (match) {
+        jobTitle = match[1].trim();
+        if (!companyName) {
+          companyName = match[2].trim();
+        }
+      }
+    }
+  }
+
+  // Work.ua specific patterns (Ukrainian job board)
+  if (hostname.includes("work.ua")) {
+    // Try to extract from h1 tag first - this usually has the clean job title
+    const h1Match =
+      html.match(/<h1[^>]*id="h1-name"[^>]*>([^<]+)<\/h1>/i) ||
+      html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+    if (h1Match) {
+      let title = decodeHtmlEntities(h1Match[1].trim());
+      // Remove "Вакансія:" prefix if present
+      title = title.replace(/^Вакансія:\s*/i, "");
+      jobTitle = title;
+    }
+
+    // Try to extract company from the company link
+    const companyLinkMatch = html.match(
+      /<a[^>]*href="\/jobs\/by-company\/[^"]*"[^>]*>([^<]+)<\/a>/i
+    );
+    if (companyLinkMatch) {
+      companyName = decodeHtmlEntities(companyLinkMatch[1].trim());
+    }
+
+    // If no company found, try to extract from text "компанія X"
+    if (!companyName) {
+      // Look for "компанія X" pattern in the HTML, extract just the company name
+      const companyTextMatch = html.match(
+        /компанія\s+([A-Za-zА-Яа-яІіЇїЄєҐґ0-9_-]+)/i
+      );
+      if (companyTextMatch) {
+        companyName = companyTextMatch[1].trim();
+      }
+    }
+
+    // Fallback: parse og:title if job title still not found
+    if (!jobTitle && ogTitle) {
+      let title = ogTitle.replace(/^Вакансія:\s*/i, "");
+      // Remove everything after dash or comma with salary/location info
+      title = title.replace(
+        /\s*[—–-]\s*(?:вакансія|робота|vacancy|job|Work\.ua).*$/i,
+        ""
+      );
+      title = title.replace(/\s*,\s*(?:\d|робота|компанія).*$/i, "");
+      if (title && !title.match(/^\d/)) {
+        jobTitle = title.trim();
+      }
+    }
+  }
 
   // LinkedIn specific patterns
-  if (hostname.includes('linkedin.com')) {
+  if (hostname.includes("linkedin.com")) {
     // LinkedIn job titles often in format "Job Title at Company"
     const linkedinPattern = /^(.+?)\s+(?:at|@|-)\s+(.+?)(?:\s*\||\s*-|\s*·|$)/i;
     const match = (ogTitle || pageTitle).match(linkedinPattern);
@@ -78,7 +194,7 @@ function extractJobInfo(html: string, hostname: string): ScrapeResult {
   }
 
   // Indeed specific patterns
-  if (hostname.includes('indeed.com')) {
+  if (hostname.includes("indeed.com")) {
     const indeedPattern = /^(.+?)\s*-\s*(.+?)\s*-\s*Indeed/i;
     const match = pageTitle.match(indeedPattern);
     if (match) {
@@ -88,8 +204,9 @@ function extractJobInfo(html: string, hostname: string): ScrapeResult {
   }
 
   // Glassdoor specific patterns
-  if (hostname.includes('glassdoor.com')) {
-    const glassdoorPattern = /^(.+?)\s+(?:Job|job)\s+(?:in|at)\s+.+?\s*\|\s*(.+?)\s*\|/i;
+  if (hostname.includes("glassdoor.com")) {
+    const glassdoorPattern =
+      /^(.+?)\s+(?:Job|job)\s+(?:in|at)\s+.+?\s*\|\s*(.+?)\s*\|/i;
     const match = pageTitle.match(glassdoorPattern);
     if (match) {
       jobTitle = match[1].trim();
@@ -119,24 +236,38 @@ function extractJobInfo(html: string, hostname: string): ScrapeResult {
   }
 
   // Try to extract from structured data (JSON-LD)
-  const jsonLdMatch = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([^<]+)<\/script>/gi);
+  const jsonLdMatch = html.match(
+    /<script[^>]*type=["']application\/ld\+json["'][^>]*>([^<]+)<\/script>/gi
+  );
   if (jsonLdMatch) {
     for (const match of jsonLdMatch) {
       try {
-        const jsonContent = match.replace(/<script[^>]*>|<\/script>/gi, '');
+        const jsonContent = match.replace(/<script[^>]*>|<\/script>/gi, "");
         const data = JSON.parse(jsonContent);
-        
-        if (data['@type'] === 'JobPosting' || (Array.isArray(data['@graph']) && data['@graph'].some((item: { '@type': string }) => item['@type'] === 'JobPosting'))) {
-          const jobData = data['@type'] === 'JobPosting' ? data : data['@graph'].find((item: { '@type': string }) => item['@type'] === 'JobPosting');
-          
+
+        if (
+          data["@type"] === "JobPosting" ||
+          (Array.isArray(data["@graph"]) &&
+            data["@graph"].some(
+              (item: { "@type": string }) => item["@type"] === "JobPosting"
+            ))
+        ) {
+          const jobData =
+            data["@type"] === "JobPosting"
+              ? data
+              : data["@graph"].find(
+                  (item: { "@type": string }) => item["@type"] === "JobPosting"
+                );
+
           if (jobData) {
             if (jobData.title && !jobTitle) {
               jobTitle = jobData.title;
             }
             if (jobData.hiringOrganization && !companyName) {
-              companyName = typeof jobData.hiringOrganization === 'string' 
-                ? jobData.hiringOrganization 
-                : jobData.hiringOrganization.name || '';
+              companyName =
+                typeof jobData.hiringOrganization === "string"
+                  ? jobData.hiringOrganization
+                  : jobData.hiringOrganization.name || "";
             }
           }
         }
@@ -155,8 +286,8 @@ function extractJobInfo(html: string, hostname: string): ScrapeResult {
   if (!jobTitle && pageTitle) {
     // Clean up common suffixes
     jobTitle = pageTitle
-      .replace(/\s*\|.*$/, '')
-      .replace(/\s*-\s*(?:Jobs?|Careers?|Apply|Hiring).*$/i, '')
+      .replace(/\s*\|.*$/, "")
+      .replace(/\s*-\s*(?:Jobs?|Careers?|Apply|Hiring).*$/i, "")
       .trim();
   }
 
@@ -165,44 +296,61 @@ function extractJobInfo(html: string, hostname: string): ScrapeResult {
   companyName = cleanText(companyName);
 
   return {
-    jobTitle: jobTitle || 'Unknown Position',
-    companyName: companyName || 'Unknown Company',
+    jobTitle: jobTitle || "Unknown Position",
+    companyName: companyName || "Unknown Company",
     success: !!(jobTitle || companyName),
   };
 }
 
 function extractMetaContent(html: string, property: string): string {
   // Try property attribute
-  let match = html.match(new RegExp(`<meta[^>]*property=["']${property}["'][^>]*content=["']([^"']+)["']`, 'i'));
+  let match = html.match(
+    new RegExp(
+      `<meta[^>]*property=["']${property}["'][^>]*content=["']([^"']+)["']`,
+      "i"
+    )
+  );
   if (match) return decodeHtmlEntities(match[1]);
 
   // Try name attribute
-  match = html.match(new RegExp(`<meta[^>]*name=["']${property}["'][^>]*content=["']([^"']+)["']`, 'i'));
+  match = html.match(
+    new RegExp(
+      `<meta[^>]*name=["']${property}["'][^>]*content=["']([^"']+)["']`,
+      "i"
+    )
+  );
   if (match) return decodeHtmlEntities(match[1]);
 
   // Try reverse order (content before property/name)
-  match = html.match(new RegExp(`<meta[^>]*content=["']([^"']+)["'][^>]*(?:property|name)=["']${property}["']`, 'i'));
+  match = html.match(
+    new RegExp(
+      `<meta[^>]*content=["']([^"']+)["'][^>]*(?:property|name)=["']${property}["']`,
+      "i"
+    )
+  );
   if (match) return decodeHtmlEntities(match[1]);
 
-  return '';
+  return "";
 }
 
 function decodeHtmlEntities(text: string): string {
   return text
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
+    .replace(/&nbsp;/g, " ")
     .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)))
-    .replace(/&#x([a-fA-F0-9]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+    .replace(/&#x([a-fA-F0-9]+);/g, (_, hex) =>
+      String.fromCharCode(parseInt(hex, 16))
+    );
 }
 
 function cleanText(text: string): string {
   return text
-    .replace(/\s+/g, ' ')
-    .replace(/^\s+|\s+$/g, '')
-    .replace(/^["']|["']$/g, '')
+    .replace(/\s+/g, " ")
+    .replace(/^\s+|\s+$/g, "")
+    .replace(/^["']|["']$/g, "")
     .trim();
 }

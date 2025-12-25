@@ -1,6 +1,6 @@
 # Job Application Tracker
 
-A simple job application tracker built with Next.js 15 that helps users manage their job search process with user authentication and cloud-based data persistence.
+A simple job application tracker built with Next.js 15 that helps users manage their job search process with user authentication and cloud-based data persistence. Hosted at [https://job-application-tracker-self.vercel.app](https://job-application-tracker-self.vercel.app)
 
 ## Key Features
 
@@ -30,7 +30,7 @@ A simple job application tracker built with Next.js 15 that helps users manage t
 1. Clone the repository:
    ```bash
    git clone <repository-url>
-   cd job-application-tracker-deployed
+   cd job-application-tracker
    ```
 
 2. Install dependencies:
