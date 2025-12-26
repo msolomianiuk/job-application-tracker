@@ -214,6 +214,33 @@ function extractJobInfo(
     }
   }
 
+  // Greenhouse specific patterns (job-boards.greenhouse.io)
+  if (hostname.includes("greenhouse.io")) {
+    // Title format: "Job Application for [Job Title] at [Company]"
+    const greenhousePattern = /^Job Application for\s+(.+?)\s+at\s+(.+?)\s*$/i;
+    const match = pageTitle.match(greenhousePattern);
+    if (match) {
+      jobTitle = match[1].trim();
+      companyName = match[2].trim();
+    }
+
+    // Also try og:title which usually has just the job title
+    if (!jobTitle && ogTitle) {
+      jobTitle = ogTitle.trim();
+    }
+
+    // Try to extract company from URL path: /company-name/jobs/...
+    if (!companyName && url) {
+      const urlCompanyMatch = url.match(/greenhouse\.io\/([^\/]+)\/jobs/i);
+      if (urlCompanyMatch) {
+        // Convert URL slug to proper name (e.g., "alpaca" -> "Alpaca")
+        companyName = urlCompanyMatch[1]
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+    }
+  }
+
   // Generic patterns if specific ones didn't work
   if (!jobTitle || !companyName) {
     // Try common patterns in title
