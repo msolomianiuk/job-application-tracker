@@ -241,6 +241,34 @@ function extractJobInfo(
     }
   }
 
+  // Lever specific patterns (jobs.lever.co)
+  if (hostname.includes("lever.co")) {
+    // Lever title format: "Company Name - Job Title"
+    // The company name comes FIRST, then the job title
+    const leverPattern = /^(.+?)\s+-\s+(.+?)$/;
+    const match = (ogTitle || pageTitle).match(leverPattern);
+    if (match) {
+      // For Lever, first part is company, second is job title
+      companyName = match[1].trim();
+      jobTitle = match[2].trim();
+    }
+
+    // Also try to extract company from URL path: /company-name/job-id
+    if (!companyName && url) {
+      const urlCompanyMatch = url.match(/lever\.co\/([^\/]+)\//i);
+      if (urlCompanyMatch) {
+        // Convert URL slug to proper name (e.g., "nekohealth" -> "Nekohealth")
+        const urlCompany = urlCompanyMatch[1]
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+        // Only use URL company if we don't have one from title
+        if (!companyName) {
+          companyName = urlCompany;
+        }
+      }
+    }
+  }
+
   // Generic patterns if specific ones didn't work
   if (!jobTitle || !companyName) {
     // Try common patterns in title
