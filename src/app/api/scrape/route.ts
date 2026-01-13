@@ -184,12 +184,25 @@ function extractJobInfo(
 
   // LinkedIn specific patterns
   if (hostname.includes("linkedin.com")) {
-    // LinkedIn job titles often in format "Job Title at Company"
-    const linkedinPattern = /^(.+?)\s+(?:at|@|-)\s+(.+?)(?:\s*\||\s*-|\s*·|$)/i;
-    const match = (ogTitle || pageTitle).match(linkedinPattern);
+    // LinkedIn job titles often in format "Company hiring Job Title in Location | LinkedIn"
+    // Example: "Intellias hiring Senior AQA Engineer (JS, Cypress) in Ukraine | LinkedIn"
+    const linkedinHiringPattern =
+      /^(.+?)\s+hiring\s+(.+?)\s+in\s+.+?\s*\|\s*LinkedIn$/i;
+    let match = (ogTitle || pageTitle).match(linkedinHiringPattern);
     if (match) {
-      jobTitle = match[1].trim();
-      companyName = match[2].trim();
+      companyName = match[1].trim();
+      jobTitle = match[2].trim();
+    }
+
+    // Fallback: LinkedIn job titles in format "Job Title at Company"
+    if (!jobTitle || !companyName) {
+      const linkedinAtPattern =
+        /^(.+?)\s+(?:at|@|-)\s+(.+?)(?:\s*\||\s*-|\s*·|$)/i;
+      match = (ogTitle || pageTitle).match(linkedinAtPattern);
+      if (match) {
+        jobTitle = match[1].trim();
+        companyName = match[2].trim();
+      }
     }
   }
 
