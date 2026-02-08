@@ -5,8 +5,10 @@ import AuthButton from '@/components/AuthButton';
 
 export default async function Home() {
   const supabase = await createClient();
-  
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/auth/login');
@@ -29,7 +31,8 @@ export default async function Home() {
               Job Application Tracker
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Track your job applications in one place. Paste a job posting URL to auto-fill details.
+              Track your job applications in one place. Paste a job posting URL
+              to auto-fill details.
             </p>
           </div>
           <AuthButton user={user} />

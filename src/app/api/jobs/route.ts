@@ -5,13 +5,13 @@ import { JobInsert, JobUpdate } from '@/types/job';
 // GET - Fetch all jobs for the authenticated user
 export async function GET() {
   const supabase = await createClient();
-  
+
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  
+
   if (authError || !user) {
     return NextResponse.json(
       { error: 'Unauthorized' },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -25,7 +25,7 @@ export async function GET() {
     console.error('Error fetching jobs:', error);
     return NextResponse.json(
       { error: 'Failed to fetch jobs' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -35,13 +35,13 @@ export async function GET() {
 // POST - Create a new job
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
-  
+
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  
+
   if (authError || !user) {
     return NextResponse.json(
       { error: 'Unauthorized' },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (!body.job_title || !body.company_name) {
       return NextResponse.json(
         { error: 'Job title and company name are required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       console.error('Error creating job:', error);
       return NextResponse.json(
         { error: 'Failed to create job' },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     console.error('Error parsing request:', error);
     return NextResponse.json(
       { error: 'Invalid request body' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }
@@ -89,13 +89,13 @@ export async function POST(request: NextRequest) {
 // PUT - Update a job
 export async function PUT(request: NextRequest) {
   const supabase = await createClient();
-  
+
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  
+
   if (authError || !user) {
     return NextResponse.json(
       { error: 'Unauthorized' },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -105,7 +105,7 @@ export async function PUT(request: NextRequest) {
     if (!id) {
       return NextResponse.json(
         { error: 'Job ID is required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -121,7 +121,7 @@ export async function PUT(request: NextRequest) {
       console.error('Error updating job:', error);
       return NextResponse.json(
         { error: 'Failed to update job' },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -130,7 +130,7 @@ export async function PUT(request: NextRequest) {
     console.error('Error parsing request:', error);
     return NextResponse.json(
       { error: 'Invalid request body' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }
@@ -138,13 +138,13 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete a job
 export async function DELETE(request: NextRequest) {
   const supabase = await createClient();
-  
+
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  
+
   if (authError || !user) {
     return NextResponse.json(
       { error: 'Unauthorized' },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -154,7 +154,7 @@ export async function DELETE(request: NextRequest) {
   if (!id) {
     return NextResponse.json(
       { error: 'Job ID is required' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -168,7 +168,7 @@ export async function DELETE(request: NextRequest) {
     console.error('Error deleting job:', error);
     return NextResponse.json(
       { error: 'Failed to delete job' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

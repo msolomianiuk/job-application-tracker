@@ -1,30 +1,30 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
+import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import Link from 'next/link';
 
 export default function SignUpPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError('Passwords do not match');
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError('Password must be at least 6 characters');
       return;
     }
 
@@ -44,22 +44,22 @@ export default function SignUpPage() {
       if (error) {
         setError(error.message);
       } else {
-        setSuccess("Check your email for the confirmation link!");
+        setSuccess('Check your email for the confirmation link!');
       }
     } catch {
-      setError("An unexpected error occurred");
+      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignUp = async () => {
-    setError("");
+    setError('');
     setLoading(true);
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
+        provider: 'google',
         options: {
           redirectTo: `${
             process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
@@ -72,7 +72,7 @@ export default function SignUpPage() {
         setLoading(false);
       }
     } catch {
-      setError("An unexpected error occurred");
+      setError('An unexpected error occurred');
       setLoading(false);
     }
   };
@@ -85,7 +85,7 @@ export default function SignUpPage() {
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Or{" "}
+            Or{' '}
             <Link
               href="/auth/login"
               className="font-medium text-blue-600 hover:text-blue-500"
@@ -165,7 +165,7 @@ export default function SignUpPage() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {loading ? "Creating account..." : "Create account"}
+              {loading ? 'Creating account...' : 'Create account'}
             </button>
           </div>
         </form>

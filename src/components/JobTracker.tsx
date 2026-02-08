@@ -61,7 +61,7 @@ export default function JobTracker({ initialJobs }: JobTrackerProps) {
 
       const { job } = await response.json();
       setJobs((prev) =>
-        prev.map((j) => (j.id === id ? job : j))
+        prev.map((j) => (j.id === id ? job : j)),
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update job');

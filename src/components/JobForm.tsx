@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { JobStatus, ScrapeResult, JobInsert } from "@/types/job";
+import { useState } from 'react';
+import { JobStatus, ScrapeResult, JobInsert } from '@/types/job';
 
 interface JobFormProps {
   onAddJob: (job: JobInsert) => Promise<void>;
@@ -9,13 +9,13 @@ interface JobFormProps {
 }
 
 export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
-  const [url, setUrl] = useState("");
-  const [jobTitle, setJobTitle] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [status, setStatus] = useState<JobStatus>("saved");
-  const [notes, setNotes] = useState("");
+  const [url, setUrl] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [status, setStatus] = useState<JobStatus>('saved');
+  const [notes, setNotes] = useState('');
   const [isScraping, setIsScraping] = useState(false);
-  const [scrapeError, setScrapeError] = useState("");
+  const [scrapeError, setScrapeError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleScrape = async (urlToScrape?: string) => {
@@ -23,13 +23,13 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
     if (!targetUrl) return;
 
     setIsScraping(true);
-    setScrapeError("");
+    setScrapeError('');
 
     try {
-      const response = await fetch("/api/scrape", {
-        method: "POST",
+      const response = await fetch('/api/scrape', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ url: targetUrl }),
       });
@@ -40,21 +40,21 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
         setJobTitle(result.jobTitle);
         setCompanyName(result.companyName);
       } else {
-        setScrapeError(result.error || "Failed to scrape job details");
+        setScrapeError(result.error || 'Failed to scrape job details');
       }
     } catch {
-      setScrapeError("Failed to connect to scraping service");
+      setScrapeError('Failed to connect to scraping service');
     } finally {
       setIsScraping(false);
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const pastedText = e.clipboardData.getData("text").trim();
+    const pastedText = e.clipboardData.getData('text').trim();
     // Check if pasted text looks like a URL
     if (
       pastedText &&
-      (pastedText.startsWith("http://") || pastedText.startsWith("https://"))
+      (pastedText.startsWith('http://') || pastedText.startsWith('https://'))
     ) {
       // Prevent default paste behavior to avoid double insertion
       e.preventDefault();
@@ -87,14 +87,14 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
       });
 
       // Reset form
-      setUrl("");
-      setJobTitle("");
-      setCompanyName("");
-      setStatus("saved");
-      setNotes("");
-      setScrapeError("");
+      setUrl('');
+      setJobTitle('');
+      setCompanyName('');
+      setStatus('saved');
+      setNotes('');
+      setScrapeError('');
     } catch (error) {
-      console.error("Error adding job:", error);
+      console.error('Error adding job:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -133,7 +133,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
             disabled={!url || isScraping}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
-            {isScraping ? "Scraping..." : "Auto-fill"}
+            {isScraping ? 'Scraping...' : 'Auto-fill'}
           </button>
         </div>
         {scrapeError && (
@@ -227,7 +227,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
         disabled={!jobTitle || !companyName || isLoading || isSubmitting}
         className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
       >
-        {isSubmitting ? "Adding..." : "Add Job Application"}
+        {isSubmitting ? 'Adding...' : 'Add Job Application'}
       </button>
     </form>
   );
