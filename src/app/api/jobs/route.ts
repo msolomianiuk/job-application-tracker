@@ -6,13 +6,13 @@ import { JobInsert, JobUpdate } from '@/types/job';
 export async function GET() {
   const supabase = await createClient();
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { data: jobs, error } = await supabase
@@ -36,22 +36,46 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const body: JobInsert = await request.json();
 
-    if (!body.job_title || !body.company_name) {
+    // Validate URL is provided
+    if (!body.url || body.url.trim() === '') {
       return NextResponse.json(
-        { error: 'Job title and company name are required' },
+        { error: 'Job posting URL is required' },
         { status: 400 },
+      );
+    }
+
+    // Validate company name is provided
+    if (!body.company_name || body.company_name.trim() === '') {
+      return NextResponse.json(
+        { error: 'Company name is required' },
+        { status: 400 },
+      );
+    }
+
+    // Check for duplicate URL
+    const { data: existingJob } = await supabase
+      .from('jobs')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('url', body.url)
+      .single();
+
+    if (existingJob) {
+      return NextResponse.json(
+        { error: 'A job application with this URL already exists' },
+        { status: 409 },
       );
     }
 
@@ -59,10 +83,10 @@ export async function POST(request: NextRequest) {
       .from('jobs')
       .insert({
         user_id: user.id,
-        url: body.url || '',
-        job_title: body.job_title,
+        url: body.url,
+        job_title: body.job_title || '',
         company_name: body.company_name,
-        status: body.status || 'saved',
+        status: body.status || 'applied',
         notes: body.notes || '',
       })
       .select()
@@ -90,13 +114,13 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const supabase = await createClient();
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
@@ -139,23 +163,20 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const supabase = await createClient();
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json(
-      { error: 'Job ID is required' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Job ID is required' }, { status: 400 });
   }
 
   const { error } = await supabase

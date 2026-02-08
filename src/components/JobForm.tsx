@@ -12,7 +12,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
   const [url, setUrl] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [status, setStatus] = useState<JobStatus>('saved');
+  const [status, setStatus] = useState<JobStatus>('applied');
   const [notes, setNotes] = useState('');
   const [isScraping, setIsScraping] = useState(false);
   const [scrapeError, setScrapeError] = useState('');
@@ -71,10 +71,6 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!jobTitle || !companyName) {
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
@@ -90,7 +86,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
       setUrl('');
       setJobTitle('');
       setCompanyName('');
-      setStatus('saved');
+      setStatus('applied');
       setNotes('');
       setScrapeError('');
     } catch (error) {
@@ -115,7 +111,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
           htmlFor="url"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
-          Job Posting URL
+          Job Posting URL *
         </label>
         <div className="flex gap-2">
           <input
@@ -124,6 +120,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onPaste={handlePaste}
+            required
             placeholder="https://example.com/job/..."
             className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           />
@@ -149,15 +146,14 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
           htmlFor="jobTitle"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
-          Job Title *
+          Job Title
         </label>
         <input
           type="text"
           id="jobTitle"
           value={jobTitle}
           onChange={(e) => setJobTitle(e.target.value)}
-          required
-          placeholder="Software Engineer"
+          placeholder="QA Automation Engineer"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
         />
       </div>
@@ -189,18 +185,25 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
         >
           Status
         </label>
-        <select
-          id="status"
-          value={status}
-          onChange={(e) => setStatus(e.target.value as JobStatus)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-        >
-          <option value="saved">Saved</option>
-          <option value="applied">Applied</option>
-          <option value="interviewing">Interviewing</option>
-          <option value="offered">Offered</option>
-          <option value="rejected">Rejected</option>
-        </select>
+        <div className="relative">
+          <select
+            id="status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as JobStatus)}
+            className="appearance-none w-full pl-3 pr-9 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer"
+          >
+            <option value="saved">Saved</option>
+            <option value="applied">Applied</option>
+            <option value="interviewing">Interviewing</option>
+            <option value="offered">Offered</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
+            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       {/* Notes */}
@@ -224,7 +227,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={!jobTitle || !companyName || isLoading || isSubmitting}
+        disabled={!url || !companyName || isLoading || isSubmitting}
         className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
       >
         {isSubmitting ? 'Adding...' : 'Add Job Application'}

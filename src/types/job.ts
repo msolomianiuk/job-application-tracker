@@ -1,4 +1,9 @@
-export type JobStatus = 'saved' | 'applied' | 'interviewing' | 'offered' | 'rejected';
+export type JobStatus =
+  | 'saved'
+  | 'applied'
+  | 'interviewing'
+  | 'offered'
+  | 'rejected';
 
 export interface JobApplication {
   id: string;
@@ -13,8 +18,8 @@ export interface JobApplication {
 }
 
 export interface JobInsert {
-  url?: string;
-  job_title: string;
+  url: string;
+  job_title?: string;
   company_name: string;
   status?: JobStatus;
   notes?: string;

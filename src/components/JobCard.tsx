@@ -162,18 +162,25 @@ export default function JobCard({ job, onUpdate, onDelete }: JobCardProps) {
           </h3>
           <p className="text-gray-600 dark:text-gray-400">{job.company_name}</p>
         </div>
-        <select
-          value={job.status}
-          onChange={(e) => handleStatusChange(e.target.value as JobStatus)}
-          disabled={isUpdating}
-          className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${statusColors[job.status]} disabled:opacity-50`}
-        >
-          {Object.entries(statusLabels).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            value={job.status}
+            onChange={(e) => handleStatusChange(e.target.value as JobStatus)}
+            disabled={isUpdating}
+            className={`appearance-none pl-3 pr-9 py-1 rounded-full text-xs font-medium cursor-pointer ${statusColors[job.status]} disabled:opacity-50`}
+          >
+            {Object.entries(statusLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
+            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       {job.url && (
