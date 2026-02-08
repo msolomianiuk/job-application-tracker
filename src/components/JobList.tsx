@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { JobApplication, JobStatus, JobUpdate } from "@/types/job";
-import JobCard from "./JobCard";
+import { useState } from 'react';
+import { JobApplication, JobStatus, JobUpdate } from '@/types/job';
+import JobCard from './JobCard';
 
 interface JobListProps {
   jobs: JobApplication[];
@@ -10,24 +10,24 @@ interface JobListProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-type SortOption = "newest" | "oldest" | "company" | "title";
-type FilterOption = "all" | JobStatus;
+type SortOption = 'newest' | 'oldest' | 'company' | 'title';
+type FilterOption = 'all' | JobStatus;
 
 const statusLabels: Record<JobStatus, string> = {
-  saved: "Saved",
-  applied: "Applied",
-  interviewing: "Interviewing",
-  offered: "Offered",
-  rejected: "Rejected",
+  saved: 'Saved',
+  applied: 'Applied',
+  interviewing: 'Interviewing',
+  offered: 'Offered',
+  rejected: 'Rejected',
 };
 
 export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
-  const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [filterBy, setFilterBy] = useState<FilterOption>("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
+  const [filterBy, setFilterBy] = useState<FilterOption>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const escapeHtml = (text: string) => {
-    const div = document.createElement("div");
+    const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
   };
@@ -181,8 +181,8 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
 
     <div class="job-list">
       ${sortedJobs
-        .map(
-          (job) => `
+    .map(
+      (job) => `
         <div class="job-card">
           <div class="job-header">
             <div>
@@ -191,25 +191,25 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
             </div>
             <span class="status-badge status-${job.status}">${statusLabels[job.status]}</span>
           </div>
-          ${job.url ? `<a href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer" class="job-link">${escapeHtml(job.url)}</a>` : ""}
-          ${job.notes ? `<div class="job-notes">${escapeHtml(job.notes)}</div>` : ""}
+          ${job.url ? `<a href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer" class="job-link">${escapeHtml(job.url)}</a>` : ''}
+          ${job.notes ? `<div class="job-notes">${escapeHtml(job.notes)}</div>` : ''}
           <div class="job-footer">
-            Added on ${new Date(job.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            Added on ${new Date(job.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </div>
         </div>
       `,
-        )
-        .join("")}
+    )
+    .join('')}
     </div>
   </div>
 </body>
 </html>`;
 
-    const blob = new Blob([html], { type: "text/html" });
+    const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `job-applications-${new Date().toISOString().split("T")[0]}.html`;
+    a.download = `job-applications-${new Date().toISOString().split('T')[0]}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -218,7 +218,7 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
 
   const filteredJobs = jobs.filter((job) => {
     // Filter by status
-    if (filterBy !== "all" && job.status !== filterBy) {
+    if (filterBy !== 'all' && job.status !== filterBy) {
       return false;
     }
 
@@ -237,17 +237,17 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
 
   const sortedJobs = [...filteredJobs].sort((a, b) => {
     switch (sortBy) {
-      case "newest":
+      case 'newest':
         return (
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
-      case "oldest":
+      case 'oldest':
         return (
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
-      case "company":
+      case 'company':
         return a.company_name.localeCompare(b.company_name);
-      case "title":
+      case 'title':
         return a.job_title.localeCompare(b.job_title);
       default:
         return 0;
@@ -271,17 +271,17 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
             <span className="font-medium">{jobs.length}</span> Total
           </div>
           <div className="bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm text-blue-800 dark:text-blue-300">
-            <span className="font-medium">{statusCounts.applied || 0}</span>{" "}
+            <span className="font-medium">{statusCounts.applied || 0}</span>{' '}
             Applied
           </div>
           <div className="bg-yellow-100 dark:bg-yellow-900 px-3 py-1 rounded-full text-sm text-yellow-800 dark:text-yellow-300">
             <span className="font-medium">
               {statusCounts.interviewing || 0}
-            </span>{" "}
+            </span>{' '}
             Interviewing
           </div>
           <div className="bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm text-green-800 dark:text-green-300">
-            <span className="font-medium">{statusCounts.offered || 0}</span>{" "}
+            <span className="font-medium">{statusCounts.offered || 0}</span>{' '}
             Offered
           </div>
         </div>
@@ -320,7 +320,7 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
           />
           {searchQuery && (
             <button
-              onClick={() => setSearchQuery("")}
+              onClick={() => setSearchQuery('')}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               aria-label="Clear search"
             >
