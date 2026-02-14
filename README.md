@@ -112,6 +112,47 @@ The project includes end-to-end tests using pytest-playwright.
 
    Note: The base URL (<http://localhost:3000>) is configured in `pytest.ini`.
 
+#### Allure Reports
+
+The project uses Allure for beautiful HTML test reports with detailed test execution history, screenshots, and step-by-step breakdowns.
+
+1. After running tests, generate and view the report:
+
+   ```bash
+   bun run allure:serve       # Generate and open report in browser
+   ```
+
+   Or generate a static report:
+
+   ```bash
+   bun run allure:generate    # Generate static HTML report
+   bun run allure:open        # Open the generated report
+   ```
+
+2. Install Allure CLI (if not already installed):
+
+   ```bash
+   # macOS
+   brew install allure
+
+   # Linux
+   sudo apt-add-repository ppa:qameta/allure
+   sudo apt-get update
+   sudo apt-get install allure
+
+   # Windows
+   scoop install allure
+   ```
+
+Allure reports include:
+
+- Test execution timeline and duration
+- Feature and story organization
+- Severity levels (Critical, Normal, Minor)
+- Step-by-step test execution details
+- Screenshots on failures (when configured)
+- Historical trends across test runs
+
 #### Test Markers
 
 - `@pytest.mark.smoke` - Critical path tests
@@ -146,6 +187,9 @@ The Vercel integration workflow waits for preview deployments to complete, then 
 - `bun run test:e2e` - Run E2E tests (requires app running on localhost:3000)
 - `bun run test:e2e:headed` - Run E2E tests with browser visible
 - `bun run test:e2e:smoke` - Run only smoke tests
+- `bun run allure:serve` - Generate and open Allure report in browser
+- `bun run allure:generate` - Generate static Allure HTML report
+- `bun run allure:open` - Open the generated Allure report
 
 ## Project Structure
 

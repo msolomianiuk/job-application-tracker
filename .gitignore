@@ -6,3 +6,6 @@ node_modules/
 .kiro
 .vscode
 __pycache__
+allure-results/
+allure-report/
+.pytest_cache/

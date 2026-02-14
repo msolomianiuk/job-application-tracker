@@ -9,7 +9,10 @@
     "lint": "eslint",
     "test:e2e": "pytest tests/e2e",
     "test:e2e:headed": "pytest tests/e2e --headed",
-    "test:e2e:smoke": "pytest tests/e2e -m smoke"
+    "test:e2e:smoke": "pytest tests/e2e -m smoke",
+    "allure:serve": "allure serve allure-results",
+    "allure:generate": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",

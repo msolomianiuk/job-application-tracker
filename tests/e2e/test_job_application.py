@@ -1,8 +1,12 @@
 """E2E tests for job application functionality."""
 import pytest
+import allure
 from playwright.sync_api import Page, expect
 
 
+@allure.feature('Job Applications')
+@allure.story('Add Job')
+@allure.severity(allure.severity_level.CRITICAL)
 @pytest.mark.smoke
 def test_add_job_application(authenticated_page: Page):
     """Test adding a new job application."""
@@ -25,18 +29,24 @@ def test_add_job_application(authenticated_page: Page):
     # Submit form
     page.click('button:has-text("Add Job Application")')
 
-    # Verify job was added - check for the job title which is unique
-    expect(page.locator('.text-lg.font-semibold:has-text("Senior QA Engineer")')
-           ).to_be_visible(timeout=10000)
+    # Verify job was added
+    locator = page.locator(
+        '.text-lg.font-semibold:has-text("Senior QA Engineer")'
+    )
+    expect(locator).to_be_visible(timeout=10000)
 
 
+@allure.feature('Job Applications')
+@allure.story('Form Validation')
+@allure.severity(allure.severity_level.CRITICAL)
 @pytest.mark.critical
 def test_job_application_required_fields(authenticated_page: Page):
     """Test that required fields are enforced."""
     page = authenticated_page
 
     # Try to submit without URL
-    submit_button = page.locator('button:has-text("Add Job Application")')
+    locator = page.locator('button:has-text("Add Job Application")')
+    submit_button = locator
     expect(submit_button).to_be_disabled()
 
     # Add URL
@@ -53,6 +63,9 @@ def test_job_application_required_fields(authenticated_page: Page):
     expect(submit_button).to_be_enabled()
 
 
+@allure.feature('Job Applications')
+@allure.story('Search')
+@allure.severity(allure.severity_level.NORMAL)
 @pytest.mark.smoke
 def test_search_job_applications(authenticated_page: Page):
     """Test searching for job applications."""
@@ -79,6 +92,9 @@ def test_search_job_applications(authenticated_page: Page):
     expect(search_input).to_have_value('')
 
 
+@allure.feature('Job Applications')
+@allure.story('Filter')
+@allure.severity(allure.severity_level.NORMAL)
 def test_filter_by_status(authenticated_page: Page):
     """Test filtering jobs by status."""
     page = authenticated_page
@@ -100,11 +116,14 @@ def test_filter_by_status(authenticated_page: Page):
     expect(page.locator('text=Filter Test Company')).to_be_visible()
 
 
+@allure.feature('Job Applications')
+@allure.story('Export')
+@allure.severity(allure.severity_level.MINOR)
 def test_export_to_html(authenticated_page: Page):
     """Test exporting jobs to HTML."""
     page = authenticated_page
 
-    # Click export button
+    # Click export button and capture download
     with page.expect_download() as download_info:
         page.click('button:has-text("Export HTML")')
 
@@ -115,6 +134,9 @@ def test_export_to_html(authenticated_page: Page):
     assert download.suggested_filename.endswith('.html')
 
 
+@allure.feature('Job Applications')
+@allure.story('Edit Job')
+@allure.severity(allure.severity_level.CRITICAL)
 @pytest.mark.critical
 def test_edit_job_application(authenticated_page: Page):
     """Test editing an existing job application."""
@@ -131,33 +153,35 @@ def test_edit_job_application(authenticated_page: Page):
     page.fill('input[placeholder*="https://example.com"]', unique_url)
     page.fill('input[placeholder*="Acme Inc"]', unique_company)
 
-    # Wait for submit button to be enabled and click
     submit_button = page.locator('button:has-text("Add Job Application")')
     expect(submit_button).to_be_enabled(timeout=5000)
     submit_button.click()
 
-    # Wait for job to appear in the list (more reliable than form clear check)
-    expect(page.locator(f'.bg-white:has-text("{unique_company}")')).to_be_visible(
-        timeout=15000)
+    # Wait for job to appear in the list
+    locator = page.locator(f'.bg-white:has-text("{unique_company}")')
+    expect(locator).to_be_visible(timeout=15000)
 
     # Click Edit button
-    page.locator(f'.bg-white:has-text("{unique_company}")').locator(
-        'button:has-text("Edit")').click()
+    job_locator = page.locator(f'.bg-white:has-text("{unique_company}")')
+    job_locator.locator('button:has-text("Edit")').click()
 
     # Wait for edit form and modify company name
     page.wait_for_selector('label:has-text("Company")', timeout=5000)
-    company_input = page.locator(
-        'label:has-text("Company")').locator('..').locator('input').last
+    label_locator = page.locator('label:has-text("Company")')
+    company_input = label_locator.locator('..').locator('input').last
     company_input.fill(updated_company)
 
     # Save changes
     page.locator('button:has-text("Save")').first.click()
 
     # Verify changes - wait for the updated name to appear
-    expect(page.locator(f'.bg-white:has-text("{updated_company}")')).to_be_visible(
-        timeout=10000)
+    locator = page.locator(f'.bg-white:has-text("{updated_company}")')
+    expect(locator).to_be_visible(timeout=10000)
 
 
+@allure.feature('Job Applications')
+@allure.story('Delete Job')
+@allure.severity(allure.severity_level.NORMAL)
 def test_delete_job_application(authenticated_page: Page):
     """Test deleting a job application."""
     page = authenticated_page
@@ -172,7 +196,8 @@ def test_delete_job_application(authenticated_page: Page):
     expect(page.locator('text=Deletable Company')).to_be_visible()
 
     # Find the job card and click Delete button
-    job_card = page.locator('.bg-white').filter(has_text='Deletable Company')
+    job_card = page.locator(
+        '.bg-white').filter(has_text='Deletable Company')
     job_card.locator('button:has-text("Delete")').click()
 
     # Confirm deletion
