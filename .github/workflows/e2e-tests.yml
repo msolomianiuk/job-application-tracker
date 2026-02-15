@@ -59,15 +59,16 @@ jobs:
       - name: Run E2E tests
         run: pytest tests/e2e --base-url=http://localhost:3000
 
-      - name: Generate Allure HTML Report
+      - name: Generate Allure Report
         if: always()
         run: |
-          allure generate allure-results -o test-results/allure-report --clean
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
+          mkdir -p allure-results
+          bun run allure:generate
+          
+      - name: Deploy to GitHub Pages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: test-results
-          path: test-results/
-          retention-days: 7
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report
+          keep_files: true
