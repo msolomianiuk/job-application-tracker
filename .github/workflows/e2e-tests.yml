@@ -67,7 +67,9 @@ jobs:
         run: |
           mkdir -p allure-results
           bun run allure:generate
-          
+          # Create vercel.json to disable Vercel builds for this branch
+          echo '{"github": {"enabled": false}}' > allure-report/vercel.json
+
       - name: Deploy to GitHub Pages
         if: always() && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
