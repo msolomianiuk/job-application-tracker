@@ -154,15 +154,15 @@ export default function JobCard({ job, onUpdate, onDelete }: JobCardProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-2">
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow overflow-hidden">
+      <div className="flex justify-between items-start mb-2 gap-2">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
             {job.job_title}
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">{job.company_name}</p>
+          <p className="text-gray-600 dark:text-gray-400 truncate">{job.company_name}</p>
         </div>
-        <div className="relative">
+        <div className="relative flex-shrink-0">
           <select
             value={job.status}
             onChange={(e) => handleStatusChange(e.target.value as JobStatus)}

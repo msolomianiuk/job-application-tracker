@@ -49,7 +49,10 @@ def authenticated_page(page: Page, base_url: str):
 
     # Cleanup: Delete all jobs for the test user from database
     try:
-        from supabase import create_client
+        try:
+            from supabase import create_client
+        except ImportError:
+            from supabase.client import create_client
 
         url = os.getenv('NEXT_PUBLIC_SUPABASE_URL')
         key = os.getenv('NEXT_PUBLIC_SUPABASE_ANON_KEY')
@@ -62,11 +65,24 @@ def authenticated_page(page: Page, base_url: str):
                 'password': password
             })
 
-            if auth_response.user:
+            if auth_response.user and auth_response.user.id:
                 # Delete all jobs for this user
-                supabase.table('job_applications').delete().eq(
-                    'user_id', auth_response.user.id
-                ).execute()
+                try:
+                    user_id = auth_response.user.id
+                    print(f"Cleanup: Preparing to delete jobs for user {email} ({user_id})")
+
+                    # Use 'jobs' table and explicitly filter by user_id
+                    # This ensures we NEVER drop the whole table or other users' data
+                    response = supabase.table('jobs').delete().eq(
+                        'user_id', user_id
+                    ).execute()
+
+                    count = len(response.data) if response.data else 0
+                    print(f"Cleanup: Successfully deleted {count} jobs for user {email}")
+                except Exception as e:
+                    print(f"Cleanup error during deletion: {e}")
+            else:
+                print("Cleanup warning: No user found in auth response, skipping cleanup")
     except Exception as e:
         # Log but don't fail the test on cleanup errors
         print(f'Cleanup warning: {e}')

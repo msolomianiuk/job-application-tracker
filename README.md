@@ -16,6 +16,7 @@ A simple job application tracker built with Next.js 15 that helps users manage t
 - **TypeScript**: Fully typed
 - **Authentication**: Supabase Auth (email/password + Google OAuth)
 - **Database**: Supabase PostgreSQL with Row Level Security
+- **Testing**: Playwright (E2E)
 
 ## Getting Started
 
@@ -210,7 +211,6 @@ The Vercel integration workflow waits for preview deployments to complete, then 
 │   │   ├── layout.tsx
 │   │   └── page.tsx             # Main job tracker page (protected)
 │   ├── components/
-│   │   ├── AuthButton.tsx       # Sign in/out button
 │   │   ├── JobCard.tsx          # Individual job display
 │   │   ├── JobForm.tsx          # Form to add new job
 │   │   ├── JobList.tsx          # List of all jobs
@@ -280,4 +280,4 @@ This project is configured for deployment. Ensure your environment variables are
 
 ## License
 
-This project is private.
+This project is licensed under the MIT License

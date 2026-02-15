@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import JobTracker from '@/components/JobTracker';
-import AuthButton from '@/components/AuthButton';
 
 export default async function Home() {
   const supabase = await createClient();
@@ -22,24 +21,9 @@ export default async function Home() {
     .order('created_at', { ascending: false });
 
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Job Application Tracker
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Track your job applications in one place. Paste a job posting URL
-              to auto-fill details.
-            </p>
-          </div>
-          <AuthButton user={user} />
-        </div>
-
-        {/* Job Tracker Component */}
-        <JobTracker initialJobs={jobs || []} />
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 py-4 sm:py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        <JobTracker initialJobs={jobs || []} user={user} />
       </div>
     </main>
   );
