@@ -13,8 +13,14 @@ def test_add_job_application(authenticated_page: Page):
     page = authenticated_page
 
     # Fill in job application form
+    # First click URL field to expand form
+    page.click('input[placeholder*="https://example.com"]')
     page.fill('input[placeholder*="https://example.com"]',
               'https://example.com/job/test-qa-engineer')
+    
+    # Wait for other fields to appear
+    page.wait_for_selector('input[placeholder*="QA Automation Engineer"]')
+    
     page.fill('input[placeholder*="QA Automation Engineer"]',
               'Senior QA Engineer')
     page.fill('input[placeholder*="Acme Inc"]', 'TestCompanyAdd')
@@ -45,6 +51,10 @@ def test_job_application_required_fields(authenticated_page: Page):
     page = authenticated_page
 
     # Try to submit without URL
+    # Expand form first
+    page.click('input[placeholder*="https://example.com"]')
+    page.wait_for_selector('button:has-text("Add Job Application")')
+    
     locator = page.locator('button:has-text("Add Job Application")')
     submit_button = locator
     expect(submit_button).to_be_disabled()
@@ -72,8 +82,10 @@ def test_search_job_applications(authenticated_page: Page):
     page = authenticated_page
 
     # Add a test job first
+    page.click('input[placeholder*="https://example.com"]')
     page.fill('input[placeholder*="https://example.com"]',
               'https://example.com/job/searchable')
+    page.wait_for_selector('input[placeholder*="Acme Inc"]')
     page.fill('input[placeholder*="Acme Inc"]', 'Searchable Company')
     page.click('button:has-text("Add Job Application")')
 
@@ -100,8 +112,10 @@ def test_filter_by_status(authenticated_page: Page):
     page = authenticated_page
 
     # Add a job with 'applied' status first
+    page.click('input[placeholder*="https://example.com"]')
     page.fill('input[placeholder*="https://example.com"]',
               'https://example.com/job/filter-test')
+    page.wait_for_selector('input[placeholder*="Acme Inc"]')
     page.fill('input[placeholder*="Acme Inc"]', 'Filter Test Company')
     page.select_option('select#status', 'applied')
     page.click('button:has-text("Add Job Application")')
@@ -124,8 +138,10 @@ def test_export_to_html(authenticated_page: Page):
     page = authenticated_page
 
     # Add a job first to ensure Export button is visible
+    page.click('input[placeholder*="https://example.com"]')
     page.fill('input[placeholder*="https://example.com"]',
               'https://example.com/job/export-test')
+    page.wait_for_selector('input[placeholder*="Acme Inc"]')
     page.fill('input[placeholder*="Acme Inc"]', 'Export Test Company')
     page.click('button:has-text("Add Job Application")')
 
@@ -159,7 +175,9 @@ def test_edit_job_application(authenticated_page: Page):
     updated_company = f'UpdatedTestCo{timestamp[-6:]}'
 
     # Add a job first
+    page.click('input[placeholder*="https://example.com"]')
     page.fill('input[placeholder*="https://example.com"]', unique_url)
+    page.wait_for_selector('input[placeholder*="Acme Inc"]')
     page.fill('input[placeholder*="Acme Inc"]', unique_company)
 
     submit_button = page.locator('button:has-text("Add Job Application")')
@@ -196,8 +214,10 @@ def test_delete_job_application(authenticated_page: Page):
     page = authenticated_page
 
     # Add a job first
+    page.click('input[placeholder*="https://example.com"]')
     page.fill('input[placeholder*="https://example.com"]',
               'https://example.com/job/deletable')
+    page.wait_for_selector('input[placeholder*="Acme Inc"]')
     page.fill('input[placeholder*="Acme Inc"]', 'Deletable Company')
     page.click('button:has-text("Add Job Application")')
 
