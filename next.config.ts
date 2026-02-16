@@ -1,7 +1,12 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    swcPlugins:
+      process.env.NODE_ENV === 'test'
+        ? [['swc-plugin-coverage-instrument', {}]]
+        : [],
+  },
 };
 
 export default nextConfig;
