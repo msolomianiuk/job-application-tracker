@@ -16,6 +16,7 @@
     "allure:open": "allure open allure-report"
   },
   "dependencies": {
+    "@babel/runtime": "^7.28.6",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.89.0",
     "next": "15.5.9",
@@ -30,11 +31,11 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
+    "babel-plugin-istanbul": "^7.0.1",
     "eslint": "^9.39.1",
     "eslint-config-google": "^0.14.0",
     "eslint-config-next": "^15.5.7",
     "nyc": "^17.1.0",
-    "swc-plugin-coverage-instrument": "^0.0.32",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
   }
