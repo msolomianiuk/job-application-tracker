@@ -1,0 +1,9 @@
+Cleanup Debug: URL present? True, Key present? True
+Cleanup Debug: Attempting login for micsol95@gmail.com via REST API
+Cleanup: Logged in as user micsol95@gmail.com (63f65e43-e0bf-452b-ac4e-102d14f588cf)
+Cleanup: Deleting jobs for user_id=63f65e43-e0bf-452b-ac4e-102d14f588cf...
+Cleanup: Successfully deleted 0 jobs for user micsol95@gmail.com
+Coverage capture warning: Page.evaluate: SyntaxError: Illegal return statement
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:290:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
