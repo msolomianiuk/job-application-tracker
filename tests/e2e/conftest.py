@@ -91,32 +91,39 @@ def authenticated_page(page: Page, base_url: str):
         url = os.getenv('NEXT_PUBLIC_SUPABASE_URL')
         key = os.getenv('NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
+        print(f"Cleanup Debug: URL present? {bool(url)}, Key present? {bool(key)}")
+
         if url and key:
             # Create client and authenticate
             supabase = create_client(url.strip(), key.strip())
+            
+            print(f"Cleanup Debug: Attempting login for {email}")
             auth_response = supabase.auth.sign_in_with_password({
                 'email': email,
                 'password': password
             })
 
             if auth_response.user and auth_response.user.id:
+                user_id = auth_response.user.id
+                print(f"Cleanup: Logged in as user {email} ({user_id})")
+                
                 # Delete all jobs for this user
                 try:
-                    user_id = auth_response.user.id
-                    print(f"Cleanup: Preparing to delete jobs for user {email} ({user_id})")
-
                     # Use 'jobs' table and explicitly filter by user_id
-                    # This ensures we NEVER drop the whole table or other users' data
+                    print(f"Cleanup: Deleting jobs for user_id={user_id}...")
                     response = supabase.table('jobs').delete().eq(
                         'user_id', user_id
                     ).execute()
-
+                    
                     count = len(response.data) if response.data else 0
                     print(f"Cleanup: Successfully deleted {count} jobs for user {email}")
                 except Exception as e:
                     print(f"Cleanup error during deletion: {e}")
             else:
-                print("Cleanup warning: No user found in auth response, skipping cleanup")
+                print("Cleanup warning: Login failed - No user found in auth response")
+        else:
+            print("Cleanup warning: Missing Supabase URL or Key in env vars")
+            
     except Exception as e:
         # Log but don't fail the test on cleanup errors
         print(f'Cleanup warning: {e}')
