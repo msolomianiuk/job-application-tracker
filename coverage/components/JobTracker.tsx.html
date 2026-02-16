@@ -211,17 +211,7 @@
 <a name='L146'></a><a href='#L146'>146</a>
 <a name='L147'></a><a href='#L147'>147</a>
 <a name='L148'></a><a href='#L148'>148</a>
-<a name='L149'></a><a href='#L149'>149</a>
-<a name='L150'></a><a href='#L150'>150</a>
-<a name='L151'></a><a href='#L151'>151</a>
-<a name='L152'></a><a href='#L152'>152</a>
-<a name='L153'></a><a href='#L153'>153</a>
-<a name='L154'></a><a href='#L154'>154</a>
-<a name='L155'></a><a href='#L155'>155</a>
-<a name='L156'></a><a href='#L156'>156</a>
-<a name='L157'></a><a href='#L157'>157</a>
-<a name='L158'></a><a href='#L158'>158</a>
-<a name='L159'></a><a href='#L159'>159</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L149'></a><a href='#L149'>149</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -349,17 +339,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -483,51 +463,41 @@ export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
   }, []);
 &nbsp;
   return (
-    &lt;div className="flex flex-col lg:flex-row gap-8"&gt;
-      {/* Sidebar */}
-      &lt;div className="w-full lg:w-1/3 space-y-6"&gt;
-        {/* Header Card */}
-        &lt;div className="bg-slate-900 text-white p-6 rounded-lg shadow-md"&gt;
-          &lt;h1 className="text-2xl font-bold mb-2"&gt;
-            Job
-            &lt;br /&gt;
-            Application
-            &lt;br /&gt;
-            Tracker
-          &lt;/h1&gt;
-          &lt;p className="text-gray-400 text-sm mb-6"&gt;
-            Track your job applications in one place. Paste a job posting URL to
-            auto-fill details.
+    &lt;div className="flex flex-col gap-6"&gt;
+      {/* Top Navigation Bar */}
+      &lt;div className="bg-slate-900 text-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-center justify-between gap-4"&gt;
+        &lt;div&gt;
+          &lt;h1 className="text-xl font-bold"&gt;Job Application Tracker&lt;/h1&gt;
+          &lt;p className="text-gray-400 text-xs mt-1 hidden md:block"&gt;
+            Track your job applications in one place. Paste a job posting URL to auto-fill details.
           &lt;/p&gt;
-&nbsp;
-          &lt;div className="flex flex-col gap-4 pt-4 border-t border-gray-700"&gt;
-            &lt;div className="text-sm text-gray-300 break-all"&gt;{user.email}&lt;/div&gt;
-            &lt;button
-              onClick={handleSignOut}
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md transition-colors"
-            &gt;
-              Sign out
-            &lt;/button&gt;
-          &lt;/div&gt;
         &lt;/div&gt;
-&nbsp;
-        {error &amp;&amp; (
-<span class="branch-1 cbranch-no" title="branch not covered" >          &lt;div className="p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg"&gt;</span>
-            {error}
-            &lt;button
-              onClick={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setError(null)}</span>
-              className="ml-2 text-red-500 hover:text-red-700"
-            &gt;
-              ×
-            &lt;/button&gt;
-          &lt;/div&gt;
-        )}
-&nbsp;
-        &lt;JobForm onAddJob={handleAddJob} isLoading={isLoading} /&gt;
+        &lt;div className="flex items-center gap-4"&gt;
+          &lt;div className="text-sm text-gray-300 break-all hidden sm:block"&gt;{user.email}&lt;/div&gt;
+          &lt;button
+            onClick={handleSignOut}
+            className="px-4 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md transition-colors"
+          &gt;
+            Sign out
+          &lt;/button&gt;
+        &lt;/div&gt;
       &lt;/div&gt;
 &nbsp;
+      {error &amp;&amp; (
+<span class="branch-1 cbranch-no" title="branch not covered" >        &lt;div className="p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg"&gt;</span>
+          {error}
+          &lt;button
+            onClick={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setError(null)}</span>
+            className="ml-2 text-red-500 hover:text-red-700"
+          &gt;
+            ×
+          &lt;/button&gt;
+        &lt;/div&gt;
+      )}
+&nbsp;
       {/* Main Content */}
-      &lt;div className="w-full lg:w-2/3 min-w-0"&gt;
+      &lt;div className="space-y-6"&gt;
+        &lt;JobForm onAddJob={handleAddJob} isLoading={isLoading} /&gt;
         &lt;JobList
           jobs={jobs}
           onUpdate={handleUpdateJob}
@@ -544,7 +514,7 @@ export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-16T14:15:25.333Z
+                at 2026-02-16T14:28:43.651Z
             </div>
         <script src="../prettify.js"></script>
         <script>
