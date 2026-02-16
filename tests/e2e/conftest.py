@@ -1,4 +1,5 @@
 """Pytest configuration and fixtures for E2E tests."""
+import requests
 import os
 import pytest
 import json
@@ -81,46 +82,63 @@ def authenticated_page(page: Page, base_url: str):
 
     yield page
 
-    # Cleanup: Delete all jobs for the test user from database
+    # Cleanup: Delete all jobs for the test user from database using raw REST API
+    # This avoids compatibility issues with the supabase-py client on some Python versions
     try:
-        try:
-            from supabase import create_client
-        except ImportError:
-            from supabase.client import create_client
-
+        import requests
+        
         url = os.getenv('NEXT_PUBLIC_SUPABASE_URL')
         key = os.getenv('NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
         print(f"Cleanup Debug: URL present? {bool(url)}, Key present? {bool(key)}")
 
         if url and key:
-            # Create client and authenticate
-            supabase = create_client(url.strip(), key.strip())
+            # 1. Authenticate to get the access token
+            auth_url = f"{url}/auth/v1/token?grant_type=password"
+            headers = {
+                "apikey": key,
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "email": email,
+                "password": password
+            }
             
-            print(f"Cleanup Debug: Attempting login for {email}")
-            auth_response = supabase.auth.sign_in_with_password({
-                'email': email,
-                'password': password
-            })
-
-            if auth_response.user and auth_response.user.id:
-                user_id = auth_response.user.id
-                print(f"Cleanup: Logged in as user {email} ({user_id})")
+            print(f"Cleanup Debug: Attempting login for {email} via REST API")
+            auth_res = requests.post(auth_url, headers=headers, json=payload)
+            
+            if auth_res.status_code == 200:
+                auth_data = auth_res.json()
+                access_token = auth_data.get("access_token")
+                user_id = auth_data.get("user", {}).get("id")
                 
-                # Delete all jobs for this user
-                try:
-                    # Use 'jobs' table and explicitly filter by user_id
-                    print(f"Cleanup: Deleting jobs for user_id={user_id}...")
-                    response = supabase.table('jobs').delete().eq(
-                        'user_id', user_id
-                    ).execute()
+                if access_token and user_id:
+                    print(f"Cleanup: Logged in as user {email} ({user_id})")
                     
-                    count = len(response.data) if response.data else 0
-                    print(f"Cleanup: Successfully deleted {count} jobs for user {email}")
-                except Exception as e:
-                    print(f"Cleanup error during deletion: {e}")
+                    # 2. Delete jobs using the access token
+                    # REST API: DELETE /rest/v1/jobs?user_id=eq.UUID
+                    delete_url = f"{url}/rest/v1/jobs?user_id=eq.{user_id}"
+                    delete_headers = {
+                        "apikey": key,
+                        "Authorization": f"Bearer {access_token}",
+                        "Content-Type": "application/json",
+                        "Prefer": "return=representation" # To get the count of deleted rows
+                    }
+                    
+                    print(f"Cleanup: Deleting jobs for user_id={user_id}...")
+                    del_res = requests.delete(delete_url, headers=delete_headers)
+                    
+                    if del_res.status_code in (200, 204):
+                        # If we asked for representation, we might get the deleted rows back
+                        deleted_data = del_res.json() if del_res.content else []
+                        count = len(deleted_data)
+                        print(f"Cleanup: Successfully deleted {count} jobs for user {email}")
+                    else:
+                        print(f"Cleanup error: Delete failed with status {del_res.status_code}: {del_res.text}")
+                else:
+                     print("Cleanup warning: Login successful but missing token/user_id")
             else:
-                print("Cleanup warning: Login failed - No user found in auth response")
+                print(f"Cleanup warning: Login failed with status {auth_res.status_code}: {auth_res.text}")
         else:
             print("Cleanup warning: Missing Supabase URL or Key in env vars")
             
