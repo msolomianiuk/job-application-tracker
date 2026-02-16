@@ -37,19 +37,23 @@ def capture_coverage(page: Page):
     yield  # Run the test
 
     try:
+        # Create output directory regardless of coverage presence
+        output_dir = Path('.nyc_output')
+        output_dir.mkdir(exist_ok=True)
+
         # 1. Check if coverage exists
         coverage = page.evaluate('return window.__coverage__ || null')
 
         if coverage:
-            # 2. Create output directory
-            output_dir = Path('.nyc_output')
-            output_dir.mkdir(exist_ok=True)
-
-            # 3. Save to a unique file
+            # 2. Save to a unique file
             filename = output_dir / f"coverage-{uuid.uuid4()}.json"
 
             with open(filename, "w") as f:
                 json.dump(coverage, f)
+            print(f"Coverage captured for test to {filename}")
+        else:
+            print("No coverage data found in window.__coverage__")
+            
     except Exception as e:
         print(f"Coverage capture warning: {e}")
 

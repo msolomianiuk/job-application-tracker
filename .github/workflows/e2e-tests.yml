@@ -72,6 +72,7 @@ jobs:
           bun run allure:generate
           
           # Generate coverage report
+          mkdir -p .nyc_output
           bun run test:coverage:report
           
           # Move coverage report to allure-report folder so it's published
