@@ -43,7 +43,8 @@ def capture_coverage(page: Page):
         output_dir.mkdir(exist_ok=True)
 
         # 1. Check if coverage exists
-        coverage = page.evaluate('return window.__coverage__ || null')
+        # Use simple expression that returns the value directly
+        coverage = page.evaluate('() => window.__coverage__ || null')
 
         if coverage:
             # 2. Save to a unique file

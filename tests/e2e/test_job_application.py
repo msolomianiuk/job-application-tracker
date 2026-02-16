@@ -123,6 +123,15 @@ def test_export_to_html(authenticated_page: Page):
     """Test exporting jobs to HTML."""
     page = authenticated_page
 
+    # Add a job first to ensure Export button is visible
+    page.fill('input[placeholder*="https://example.com"]',
+              'https://example.com/job/export-test')
+    page.fill('input[placeholder*="Acme Inc"]', 'Export Test Company')
+    page.click('button:has-text("Add Job Application")')
+
+    # Wait for job to appear
+    expect(page.locator('text=Export Test Company')).to_be_visible()
+
     # Click export button and capture download
     with page.expect_download() as download_info:
         page.click('button:has-text("Export HTML")')
