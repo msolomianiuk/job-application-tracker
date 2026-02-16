@@ -102,51 +102,41 @@ export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
   }, []);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8">
-      {/* Sidebar */}
-      <div className="w-full lg:w-1/3 space-y-6">
-        {/* Header Card */}
-        <div className="bg-slate-900 text-white p-6 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold mb-2">
-            Job
-            <br />
-            Application
-            <br />
-            Tracker
-          </h1>
-          <p className="text-gray-400 text-sm mb-6">
-            Track your job applications in one place. Paste a job posting URL to
-            auto-fill details.
+    <div className="flex flex-col gap-6">
+      {/* Top Navigation Bar */}
+      <div className="bg-slate-900 text-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold">Job Application Tracker</h1>
+          <p className="text-gray-400 text-xs mt-1 hidden md:block">
+            Track your job applications in one place. Paste a job posting URL to auto-fill details.
           </p>
-
-          <div className="flex flex-col gap-4 pt-4 border-t border-gray-700">
-            <div className="text-sm text-gray-300 break-all">{user.email}</div>
-            <button
-              onClick={handleSignOut}
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md transition-colors"
-            >
-              Sign out
-            </button>
-          </div>
         </div>
-
-        {error && (
-          <div className="p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg">
-            {error}
-            <button
-              onClick={() => setError(null)}
-              className="ml-2 text-red-500 hover:text-red-700"
-            >
-              ×
-            </button>
-          </div>
-        )}
-
-        <JobForm onAddJob={handleAddJob} isLoading={isLoading} />
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-300 break-all hidden sm:block">{user.email}</div>
+          <button
+            onClick={handleSignOut}
+            className="px-4 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
 
+      {error && (
+        <div className="p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg">
+          {error}
+          <button
+            onClick={() => setError(null)}
+            className="ml-2 text-red-500 hover:text-red-700"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* Main Content */}
-      <div className="w-full lg:w-2/3 min-w-0">
+      <div className="space-y-6">
+        <JobForm onAddJob={handleAddJob} isLoading={isLoading} />
         <JobList
           jobs={jobs}
           onUpdate={handleUpdateJob}
