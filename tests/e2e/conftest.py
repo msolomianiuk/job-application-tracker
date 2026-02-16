@@ -1,6 +1,9 @@
 """Pytest configuration and fixtures for E2E tests."""
 import os
 import pytest
+import json
+import uuid
+from pathlib import Path
 from playwright.sync_api import Page, BrowserContext
 from dotenv import load_dotenv
 
@@ -22,6 +25,33 @@ def context(context: BrowserContext):
     """Provide browser context with extended timeout."""
     context.set_default_timeout(30000)
     yield context
+
+
+@pytest.fixture(autouse=True)
+def capture_coverage(page: Page):
+    """
+    Auto-fixture that runs after every test.
+    It extracts the window.__coverage__ object from the browser
+    and saves it to a .nyc_output directory.
+    """
+    yield  # Run the test
+
+    try:
+        # 1. Check if coverage exists
+        coverage = page.evaluate('return window.__coverage__ || null')
+
+        if coverage:
+            # 2. Create output directory
+            output_dir = Path('.nyc_output')
+            output_dir.mkdir(exist_ok=True)
+
+            # 3. Save to a unique file
+            filename = output_dir / f"coverage-{uuid.uuid4()}.json"
+
+            with open(filename, "w") as f:
+                json.dump(coverage, f)
+    except Exception as e:
+        print(f"Coverage capture warning: {e}")
 
 
 @pytest.fixture

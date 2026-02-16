@@ -10,6 +10,7 @@
     "test:e2e": "pytest tests/e2e",
     "test:e2e:headed": "pytest tests/e2e --headed",
     "test:e2e:smoke": "pytest tests/e2e -m smoke",
+    "test:coverage:report": "nyc report --reporter=html --reporter=text --temp-dir=.nyc_output",
     "allure:serve": "allure serve allure-results",
     "allure:generate": "allure generate allure-results --clean -o allure-report",
     "allure:open": "allure open allure-report"
@@ -29,9 +30,11 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
+    "babel-plugin-istanbul": "^7.0.1",
     "eslint": "^9.39.1",
     "eslint-config-google": "^0.14.0",
     "eslint-config-next": "^15.5.7",
+    "nyc": "^17.1.0",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
   }

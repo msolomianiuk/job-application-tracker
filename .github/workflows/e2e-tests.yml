@@ -51,22 +51,30 @@ jobs:
           echo "TEST_USER_PASSWORD=${{ secrets.TEST_USER_PASSWORD }}" >> .env.local
 
       - name: Build application
-        run: bun run build
+        run: NODE_ENV=test bun run build
 
       - name: Start application
         run: |
-          bun run start &
+          NODE_ENV=test bun run start &
           sleep 5
           curl --retry 10 --retry-delay 3 --retry-connrefused http://localhost:3000
 
       - name: Run E2E tests
         run: pytest tests/e2e --base-url=http://localhost:3000
 
-      - name: Generate Allure Report
+      - name: Generate Reports
         if: always()
         run: |
           mkdir -p allure-results
           bun run allure:generate
+          
+          # Generate coverage report
+          bun run test:coverage:report
+          
+          # Move coverage report to allure-report folder so it's published
+          mkdir -p allure-report/coverage
+          cp -r coverage/* allure-report/coverage/
+          
           # Create vercel.json to disable Vercel builds for this branch
           echo '{"github": {"enabled": false}}' > allure-report/vercel.json
 
