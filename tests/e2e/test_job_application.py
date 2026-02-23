@@ -123,10 +123,18 @@ def test_filter_by_status(authenticated_page: Page):
     # Wait for job to appear
     expect(page.locator('text=Filter Test Company')).to_be_visible()
 
-    # Select filter
-    page.select_option('select:has-text("All Status")', 'applied')
+    # Select filter by clicking the pill button
+    page.click('button:has-text("Applied")')
 
     # Verify the job is still visible
+    expect(page.locator('text=Filter Test Company')).to_be_visible()
+
+    # Click another filter that should hide it
+    page.click('button:has-text("Rejected")')
+    expect(page.locator('text=Filter Test Company')).to_be_hidden()
+
+    # Reset filter
+    page.click('button:has-text("Total")')
     expect(page.locator('text=Filter Test Company')).to_be_visible()
 
 
@@ -198,8 +206,8 @@ def test_edit_job_application(authenticated_page: Page):
     company_input = label_locator.locator('..').locator('input').last
     company_input.fill(updated_company)
 
-    # Save changes
-    page.locator('button:has-text("Save")').first.click()
+    # Save changes (use precise selector to avoid matching the "Saved" filter pill)
+    page.locator('button.bg-green-600:has-text("Save")').first.click()
 
     # Verify changes - wait for the updated name to appear
     locator = page.locator(f'.bg-white:has-text("{updated_company}")')
