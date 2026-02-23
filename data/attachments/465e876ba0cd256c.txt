@@ -1,0 +1,6 @@
+Cleanup Debug: URL present? True, Key present? True
+Cleanup Debug: Attempting login for micsol95@gmail.com via REST API
+Cleanup: Logged in as user micsol95@gmail.com (63f65e43-e0bf-452b-ac4e-102d14f588cf)
+Cleanup: Deleting jobs for user_id=63f65e43-e0bf-452b-ac4e-102d14f588cf...
+Cleanup: Successfully deleted 0 jobs for user micsol95@gmail.com
+Coverage captured for test to .nyc_output/coverage-d79406a7-6462-4644-a728-fe928a89f6a6.json
