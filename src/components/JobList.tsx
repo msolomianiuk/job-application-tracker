@@ -266,36 +266,53 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
     {} as Record<JobStatus, number>,
   );
 
+  const getPillClass = (status: FilterOption, baseClass: string, ringClass: string) => {
+    const isSelected = filterBy === status;
+    const isDimmed = filterBy !== 'all' && !isSelected;
+    return `${baseClass} px-3 py-1 rounded-full text-sm transition-all cursor-pointer ${isDimmed ? 'opacity-50 hover:opacity-100' : 'opacity-100'} ${isSelected ? `ring-2 ring-offset-1 dark:ring-offset-gray-800 ${ringClass}` : ''}`;
+  };
+
   return (
     <div>
       {/* Stats Bar */}
       <div className="flex flex-wrap gap-2 mb-4 items-center justify-between">
         <div className="flex flex-wrap gap-2">
-          <div className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full text-sm">
+          <button
+            onClick={() => setFilterBy('all')}
+            className={getPillClass('all', 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200', 'ring-gray-400 dark:ring-gray-500')}
+          >
             <span className="font-medium">{jobs.length}</span> Total
-          </div>
-          <div className="bg-gray-200 dark:bg-gray-600 px-3 py-1 rounded-full text-sm text-gray-800 dark:text-gray-200">
-            <span className="font-medium">{statusCounts.saved || 0}</span>{' '}
-            Saved
-          </div>
-          <div className="bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm text-blue-800 dark:text-blue-300">
-            <span className="font-medium">{statusCounts.applied || 0}</span>{' '}
-            Applied
-          </div>
-          <div className="bg-yellow-100 dark:bg-yellow-900 px-3 py-1 rounded-full text-sm text-yellow-800 dark:text-yellow-300">
-            <span className="font-medium">
-              {statusCounts.interviewing || 0}
-            </span>{' '}
-            Interviewing
-          </div>
-          <div className="bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm text-green-800 dark:text-green-300">
-            <span className="font-medium">{statusCounts.offered || 0}</span>{' '}
-            Offered
-          </div>
-          <div className="bg-red-100 dark:bg-red-900 px-3 py-1 rounded-full text-sm text-red-800 dark:text-red-300">
-            <span className="font-medium">{statusCounts.rejected || 0}</span>{' '}
-            Rejected
-          </div>
+          </button>
+          <button
+            onClick={() => setFilterBy('saved')}
+            className={getPillClass('saved', 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200', 'ring-gray-400 dark:ring-gray-500')}
+          >
+            <span className="font-medium">{statusCounts.saved || 0}</span> Saved
+          </button>
+          <button
+            onClick={() => setFilterBy('applied')}
+            className={getPillClass('applied', 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300', 'ring-blue-400 dark:ring-blue-500')}
+          >
+            <span className="font-medium">{statusCounts.applied || 0}</span> Applied
+          </button>
+          <button
+            onClick={() => setFilterBy('interviewing')}
+            className={getPillClass('interviewing', 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300', 'ring-yellow-400 dark:ring-yellow-500')}
+          >
+            <span className="font-medium">{statusCounts.interviewing || 0}</span> Interviewing
+          </button>
+          <button
+            onClick={() => setFilterBy('offered')}
+            className={getPillClass('offered', 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300', 'ring-green-400 dark:ring-green-500')}
+          >
+            <span className="font-medium">{statusCounts.offered || 0}</span> Offered
+          </button>
+          <button
+            onClick={() => setFilterBy('rejected')}
+            className={getPillClass('rejected', 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300', 'ring-red-400 dark:ring-red-500')}
+          >
+            <span className="font-medium">{statusCounts.rejected || 0}</span> Rejected
+          </button>
         </div>
         {jobs.length > 0 && (
           <button
@@ -350,25 +367,6 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
               </svg>
             </button>
           )}
-        </div>
-        <div className="relative">
-          <select
-            value={filterBy}
-            onChange={(e) => setFilterBy(e.target.value as FilterOption)}
-            className="appearance-none w-full sm:w-auto pl-3 pr-9 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer"
-          >
-            <option value="all">All Status</option>
-            <option value="saved">Saved</option>
-            <option value="applied">Applied</option>
-            <option value="interviewing">Interviewing</option>
-            <option value="offered">Offered</option>
-            <option value="rejected">Rejected</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
-            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
         </div>
         <div className="relative">
           <select
