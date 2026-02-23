@@ -69,13 +69,22 @@ jobs:
         if: always()
         run: |
           mkdir -p allure-results
-          bun run allure:generate
           
           # Generate coverage report
           mkdir -p .nyc_output
           bun run test:coverage:report
           
-          # Move coverage report to allure-report folder so it's published
+          # Extract coverage percentage and add to Allure environment properties
+          if [ -f coverage/coverage-summary.json ]; then
+            COVERAGE_PCT=$(node -e "const summary = require('./coverage/coverage-summary.json'); console.log(summary.total.statements.pct === 'Unknown' ? '0' : summary.total.statements.pct);")
+            echo "Coverage_Statements=$COVERAGE_PCT%" >> allure-results/environment.properties
+            echo "Detailed_Coverage_Report=https://msolomianiuk.github.io/job-application-tracker/coverage/" >> allure-results/environment.properties
+          fi
+          
+          # Generate Allure report
+          bun run allure:generate
+          
+          # Move coverage report to allure-report folder so it's published together
           mkdir -p allure-report/coverage
           cp -r coverage/* allure-report/coverage/
           
