@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">72.5% </span>
+                <span class="strong">77.08% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>29/40</span>
+                <span class='fraction'>37/48</span>
             </div>
         
             
@@ -471,7 +471,19 @@
 <a name='L406'></a><a href='#L406'>406</a>
 <a name='L407'></a><a href='#L407'>407</a>
 <a name='L408'></a><a href='#L408'>408</a>
-<a name='L409'></a><a href='#L409'>409</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L409'></a><a href='#L409'>409</a>
+<a name='L410'></a><a href='#L410'>410</a>
+<a name='L411'></a><a href='#L411'>411</a>
+<a name='L412'></a><a href='#L412'>412</a>
+<a name='L413'></a><a href='#L413'>413</a>
+<a name='L414'></a><a href='#L414'>414</a>
+<a name='L415'></a><a href='#L415'>415</a>
+<a name='L416'></a><a href='#L416'>416</a>
+<a name='L417'></a><a href='#L417'>417</a>
+<a name='L418'></a><a href='#L418'>418</a>
+<a name='L419'></a><a href='#L419'>419</a>
+<a name='L420'></a><a href='#L420'>420</a>
+<a name='L421'></a><a href='#L421'>421</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -507,6 +519,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -788,6 +804,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -964,9 +988,11 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
       font-weight: 500;
     }
     .stat-total { background: #e5e7eb; color: #374151; }
+    .stat-saved { background: #f3f4f6; color: #4b5563; }
     .stat-applied { background: #dbeafe; color: #1e40af; }
     .stat-interviewing { background: #fef3c7; color: #92400e; }
     .stat-offered { background: #d1fae5; color: #065f46; }
+    .stat-rejected { background: #fee2e2; color: #991b1b; }
     .job-list {
       display: grid;
       gap: 20px;
@@ -1055,9 +1081,11 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
     
     &lt;div class="stats"&gt;
       &lt;div class="stat stat-total"&gt;&lt;strong&gt;${jobs.length}&lt;/strong&gt; Total&lt;/div&gt;
+      &lt;div class="stat stat-saved"&gt;&lt;strong&gt;${statusCounts.saved || 0}&lt;/strong&gt; Saved&lt;/div&gt;
       &lt;div class="stat stat-applied"&gt;&lt;strong&gt;${statusCounts.applied || <span class="branch-1 cbranch-no" title="branch not covered" >0}</span>&lt;/strong&gt; Applied&lt;/div&gt;
       &lt;div class="stat stat-interviewing"&gt;&lt;strong&gt;${statusCounts.interviewing || 0}&lt;/strong&gt; Interviewing&lt;/div&gt;
       &lt;div class="stat stat-offered"&gt;&lt;strong&gt;${statusCounts.offered || 0}&lt;/strong&gt; Offered&lt;/div&gt;
+      &lt;div class="stat stat-rejected"&gt;&lt;strong&gt;${statusCounts.rejected || 0}&lt;/strong&gt; Rejected&lt;/div&gt;
     &lt;/div&gt;
 &nbsp;
     &lt;div class="job-list"&gt;
@@ -1151,6 +1179,10 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
           &lt;div className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full text-sm"&gt;
             &lt;span className="font-medium"&gt;{jobs.length}&lt;/span&gt; Total
           &lt;/div&gt;
+          &lt;div className="bg-gray-200 dark:bg-gray-600 px-3 py-1 rounded-full text-sm text-gray-800 dark:text-gray-200"&gt;
+            &lt;span className="font-medium"&gt;{statusCounts.saved || 0}&lt;/span&gt;{' '}
+            Saved
+          &lt;/div&gt;
           &lt;div className="bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm text-blue-800 dark:text-blue-300"&gt;
             &lt;span className="font-medium"&gt;{statusCounts.applied || 0}&lt;/span&gt;{' '}
             Applied
@@ -1164,6 +1196,10 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
           &lt;div className="bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm text-green-800 dark:text-green-300"&gt;
             &lt;span className="font-medium"&gt;{statusCounts.offered || 0}&lt;/span&gt;{' '}
             Offered
+          &lt;/div&gt;
+          &lt;div className="bg-red-100 dark:bg-red-900 px-3 py-1 rounded-full text-sm text-red-800 dark:text-red-300"&gt;
+            &lt;span className="font-medium"&gt;{statusCounts.rejected || 0}&lt;/span&gt;{' '}
+            Rejected
           &lt;/div&gt;
         &lt;/div&gt;
         {jobs.length &gt; 0 &amp;&amp; (
@@ -1294,7 +1330,7 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-23T13:50:12.098Z
+                at 2026-02-23T15:38:33.801Z
             </div>
         <script src="../prettify.js"></script>
         <script>
