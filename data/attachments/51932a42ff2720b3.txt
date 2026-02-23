@@ -1,0 +1,1 @@
+Coverage captured for test to .nyc_output/coverage-8dc09bd9-60cf-4728-82e2-aff404d0fcf3.json
