@@ -83,9 +83,11 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
       font-weight: 500;
     }
     .stat-total { background: #e5e7eb; color: #374151; }
+    .stat-saved { background: #f3f4f6; color: #4b5563; }
     .stat-applied { background: #dbeafe; color: #1e40af; }
     .stat-interviewing { background: #fef3c7; color: #92400e; }
     .stat-offered { background: #d1fae5; color: #065f46; }
+    .stat-rejected { background: #fee2e2; color: #991b1b; }
     .job-list {
       display: grid;
       gap: 20px;
@@ -174,9 +176,11 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
     
     <div class="stats">
       <div class="stat stat-total"><strong>${jobs.length}</strong> Total</div>
+      <div class="stat stat-saved"><strong>${statusCounts.saved || 0}</strong> Saved</div>
       <div class="stat stat-applied"><strong>${statusCounts.applied || 0}</strong> Applied</div>
       <div class="stat stat-interviewing"><strong>${statusCounts.interviewing || 0}</strong> Interviewing</div>
       <div class="stat stat-offered"><strong>${statusCounts.offered || 0}</strong> Offered</div>
+      <div class="stat stat-rejected"><strong>${statusCounts.rejected || 0}</strong> Rejected</div>
     </div>
 
     <div class="job-list">
@@ -270,6 +274,10 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
           <div className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full text-sm">
             <span className="font-medium">{jobs.length}</span> Total
           </div>
+          <div className="bg-gray-200 dark:bg-gray-600 px-3 py-1 rounded-full text-sm text-gray-800 dark:text-gray-200">
+            <span className="font-medium">{statusCounts.saved || 0}</span>{' '}
+            Saved
+          </div>
           <div className="bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-sm text-blue-800 dark:text-blue-300">
             <span className="font-medium">{statusCounts.applied || 0}</span>{' '}
             Applied
@@ -283,6 +291,10 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
           <div className="bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full text-sm text-green-800 dark:text-green-300">
             <span className="font-medium">{statusCounts.offered || 0}</span>{' '}
             Offered
+          </div>
+          <div className="bg-red-100 dark:bg-red-900 px-3 py-1 rounded-full text-sm text-red-800 dark:text-red-300">
+            <span className="font-medium">{statusCounts.rejected || 0}</span>{' '}
+            Rejected
           </div>
         </div>
         {jobs.length > 0 && (
