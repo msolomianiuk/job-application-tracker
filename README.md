@@ -4,19 +4,28 @@ A simple job application tracker built with Next.js 15 that helps users manage t
 
 ## Key Features
 
-1. **URL Scraping**: Automatically extract job title and company name from provided vacancy links
-2. **User Authentication**: Email/password and Google OAuth sign-in via Supabase Auth
-3. **Cloud Data Persistence**: All job data stored in Supabase PostgreSQL database, accessible from any browser when logged in
+1. **URL Scraping**: Paste a job posting URL and automatically extract job title and company name. Supports LinkedIn, Indeed, Glassdoor, Greenhouse, Lever, DOU.ua, Work.ua, and generic fallbacks via meta tags, JSON-LD structured data, and site-specific patterns
+2. **Full CRUD Management**: Create, view, edit (inline), and delete job applications with confirmation dialogs
+3. **Application Status Lifecycle**: Track applications through five stages — `saved`, `applied`, `interviewing`, `offered`, `rejected` — each with distinct color coding. Change status directly from the job card
+4. **Search, Filter, and Sort**: Real-time search across job title, company name, and notes. Filter by status with pill buttons showing counts. Sort by newest/oldest/company/title
+5. **Duplicate URL Detection**: Prevents adding the same job posting twice per user (409 Conflict)
+6. **HTML Export**: Export all job applications to a self-contained, print-friendly HTML file with status badges and summary statistics
+7. **User Authentication**: Email/password and Google OAuth sign-in via Supabase Auth with automatic session refresh
+8. **Cloud Data Persistence**: All job data stored in Supabase PostgreSQL with Row Level Security, accessible from any browser when logged in
+9. **Dark Mode**: Full dark mode support via Tailwind CSS throughout all components
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 with App Router
+- **Framework**: Next.js 15 with App Router and Server Components
 - **React**: 19.x
-- **Styling**: Tailwind CSS v4
-- **TypeScript**: Fully typed
+- **Styling**: Tailwind CSS v4 with dark mode support
+- **TypeScript**: 5.x, fully typed throughout
 - **Authentication**: Supabase Auth (email/password + Google OAuth)
 - **Database**: Supabase PostgreSQL with Row Level Security
-- **Testing**: Playwright (E2E)
+- **Testing**: pytest-playwright (Python-based E2E) with Allure reporting and nyc code coverage
+- **Package Manager**: Bun
+- **CI/CD**: GitHub Actions (lint, E2E tests, Vercel deployment)
+- **Hosting**: Vercel
 
 ## Getting Started
 
@@ -31,7 +40,7 @@ A simple job application tracker built with Next.js 15 that helps users manage t
 1. Clone the repository:
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/msolomianiuk/job-application-tracker.git
    cd job-application-tracker
    ```
 
@@ -160,24 +169,27 @@ Allure reports include:
 - `@pytest.mark.critical` - Important functionality tests
 - `@pytest.mark.auth` - Authentication-related tests
 
-#### CI/CD
+## CI/CD
 
-E2E tests run automatically on:
+The project uses GitHub Actions with four workflows that form a complete pipeline:
 
-- Push to `main` or `develop` branches (GitHub Actions with local build)
-- Pull requests to `main` or `develop` (Vercel preview deployments)
-- Manual workflow dispatch
+| Workflow | Trigger | Description |
+|---|---|---|
+| **Lint** (`lint.yml`) | Push/PR to `main` or `develop` | Runs ESLint across the codebase |
+| **E2E Tests** (`e2e-tests.yml`) | Push/PR to `main` or `develop`, manual dispatch | Builds locally, runs E2E tests, generates Allure + coverage reports, deploys reports to GitHub Pages |
+| **Vercel Preview E2E** (`vercel-e2e.yml`) | PR to `main` or `develop` | Waits for Vercel preview deployment, runs E2E tests against the live preview URL, posts pass/fail results as a PR comment |
+| **Deploy to Vercel** (`deploy-vercel.yml`) | After E2E Tests pass | Deploys to Vercel production only after E2E tests succeed |
 
-Required GitHub secrets:
+### Required GitHub Secrets
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `TEST_USER_EMAIL`
 - `TEST_USER_PASSWORD`
 
-The Vercel integration workflow waits for preview deployments to complete, then runs E2E tests against the live preview URL.
+### Branch Protection
 
-**Branch Protection**: To make E2E tests required before merging, enable branch protection rules in GitHub Settings → Branches and require the "E2E Tests / e2e-tests" status check.
+To make E2E tests required before merging, enable branch protection rules in GitHub Settings → Branches and require the "E2E Tests / e2e-tests" status check.
 
 ## Available Scripts
 
@@ -188,6 +200,7 @@ The Vercel integration workflow waits for preview deployments to complete, then 
 - `bun run test:e2e` - Run E2E tests (requires app running on localhost:3000)
 - `bun run test:e2e:headed` - Run E2E tests with browser visible
 - `bun run test:e2e:smoke` - Run only smoke tests
+- `bun run test:coverage:report` - Generate code coverage report (HTML, text, JSON summary)
 - `bun run allure:serve` - Generate and open Allure report in browser
 - `bun run allure:generate` - Generate static Allure HTML report
 - `bun run allure:open` - Open the generated Allure report
@@ -211,10 +224,10 @@ The Vercel integration workflow waits for preview deployments to complete, then 
 │   │   ├── layout.tsx
 │   │   └── page.tsx             # Main job tracker page (protected)
 │   ├── components/
-│   │   ├── JobCard.tsx          # Individual job display
-│   │   ├── JobForm.tsx          # Form to add new job
-│   │   ├── JobList.tsx          # List of all jobs
-│   │   └── JobTracker.tsx       # Main tracker component
+│   │   ├── JobCard.tsx          # Individual job card with inline edit and status change
+│   │   ├── JobForm.tsx          # Collapsible add-job form with URL auto-fill
+│   │   ├── JobList.tsx          # Job list with search, filter, sort, and export
+│   │   └── JobTracker.tsx       # Top-level client component orchestrating state
 │   ├── lib/
 │   │   └── supabase/
 │   │       ├── client.ts        # Browser Supabase client
@@ -222,6 +235,17 @@ The Vercel integration workflow waits for preview deployments to complete, then 
 │   │       └── middleware.ts    # Session management
 │   └── types/
 │       └── job.ts               # TypeScript interfaces
+├── tests/
+│   └── e2e/
+│       ├── conftest.py          # Fixtures (authenticated browser session)
+│       ├── test_auth.py         # Auth flow tests
+│       └── test_job_application.py # CRUD, search, filter, export tests
+└── .github/
+    └── workflows/
+        ├── lint.yml             # ESLint on push/PR
+        ├── e2e-tests.yml        # E2E tests with Allure + coverage reports
+        ├── vercel-e2e.yml       # E2E tests against Vercel preview deployments
+        └── deploy-vercel.yml    # Production deploy after E2E pass
 ```
 
 ## Data Model
@@ -268,7 +292,17 @@ Using server-side API route to:
 
 ## Deployment
 
-This project is configured for deployment. Ensure your environment variables are set in your deployment platform.
+The project is deployed to **Vercel** at [https://job-application-tracker-self.vercel.app](https://job-application-tracker-self.vercel.app).
+
+Production deployments happen automatically via the `deploy-vercel.yml` GitHub Actions workflow, which only triggers after E2E tests pass. This ensures no broken code reaches production.
+
+To deploy manually or to your own Vercel instance:
+
+1. Link the project: `vercel link`
+2. Set environment variables in Vercel dashboard:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. Deploy: `vercel --prod`
 
 ## Contributing
 
@@ -276,7 +310,8 @@ This project is configured for deployment. Ensure your environment variables are
 2. Create a feature branch
 3. Make your changes
 4. Run `bun run lint` to ensure code quality
-5. Submit a pull request
+5. Run `bun run test:e2e` to verify E2E tests pass (requires the app running on localhost:3000)
+6. Submit a pull request — E2E tests will run automatically against the Vercel preview deployment
 
 ## License
 
