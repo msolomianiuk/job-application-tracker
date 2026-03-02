@@ -1,6 +1,11 @@
 # Job Application Tracker
 
-A simple job application tracker built with Next.js 15 that helps users manage their job search process with user authentication and cloud-based data persistence. Hosted at [https://job-application-tracker-self.vercel.app](https://job-application-tracker-self.vercel.app)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://job-application-tracker-self.vercel.app)
+[![E2E Tests](https://github.com/msolomianiuk/job-application-tracker/actions/workflows/e2e-tests.yml/badge.svg)](https://github.com/msolomianiuk/job-application-tracker/actions/workflows/e2e-tests.yml)
+[![Lint](https://github.com/msolomianiuk/job-application-tracker/actions/workflows/lint.yml/badge.svg)](https://github.com/msolomianiuk/job-application-tracker/actions/workflows/lint.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+A full-stack job application tracker built with Next.js 15 and Supabase. Paste a job posting URL to auto-fill the details, track applications through a five-stage lifecycle, and export your data at any time. Deployed at [https://job-application-tracker-self.vercel.app](https://job-application-tracker-self.vercel.app).
 
 ## Key Features
 
@@ -31,9 +36,9 @@ A simple job application tracker built with Next.js 15 that helps users manage t
 
 ### Prerequisites
 
-- Node.js (version 18 or higher)
-- Bun (recommended for package management)
-- A Supabase account
+- [Bun](https://bun.sh) (used as the package manager and runtime)
+- Python 3.11+ (for E2E tests only)
+- A [Supabase](https://supabase.com) account
 
 ### Installation
 
@@ -52,14 +57,18 @@ A simple job application tracker built with Next.js 15 that helps users manage t
 
 3. Create a Supabase project at [https://supabase.com](https://supabase.com)
 
-4. Copy the environment variables:
-   - Copy `.env.example` to `.env.local` (if exists, otherwise create `.env.local`)
-   - Fill in your Supabase credentials:
+4. Set up environment variables:
 
-     ```
-     NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-     ```
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Then fill in your Supabase credentials in `.env.local`:
+
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   ```
 
 5. Run the SQL schema:
    - Go to your Supabase project's SQL Editor
@@ -83,26 +92,41 @@ The project includes end-to-end tests using pytest-playwright.
 
 #### Setup
 
-1. Install Python dependencies:
+1. Install Allure CLI (required to view reports):
+
+   ```bash
+   # macOS
+   brew install allure
+
+   # Linux
+   sudo apt-add-repository ppa:qameta/allure
+   sudo apt-get update
+   sudo apt-get install allure
+
+   # Windows
+   scoop install allure
+   ```
+
+2. Install Python dependencies:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-2. Install Playwright browsers:
+3. Install Playwright browsers:
 
    ```bash
    playwright install chromium
    ```
 
-3. Configure test user credentials in `.env.local`:
+4. Add test user credentials to `.env.local`:
 
    ```
    TEST_USER_EMAIL=your-test-user@example.com
    TEST_USER_PASSWORD=your-test-password
    ```
 
-   Note: Create a test user in your Supabase project for running tests.
+   Create a dedicated test user in your Supabase project. The test suite automatically cleans up all jobs created during a test run via the authenticated_page fixture.
 
 #### Running Tests
 
@@ -120,39 +144,22 @@ The project includes end-to-end tests using pytest-playwright.
    bun run test:e2e:smoke     # Run only smoke tests
    ```
 
-   Note: The base URL (<http://localhost:3000>) is configured in `pytest.ini`.
+   The base URL (`http://localhost:3000`) is configured in `pytest.ini`.
 
 #### Allure Reports
 
-The project uses Allure for beautiful HTML test reports with detailed test execution history, screenshots, and step-by-step breakdowns.
+After running tests, generate and view the report:
 
-1. After running tests, generate and view the report:
+```bash
+bun run allure:serve       # Generate and open report in browser (one command)
+```
 
-   ```bash
-   bun run allure:serve       # Generate and open report in browser
-   ```
+Or generate a static report:
 
-   Or generate a static report:
-
-   ```bash
-   bun run allure:generate    # Generate static HTML report
-   bun run allure:open        # Open the generated report
-   ```
-
-2. Install Allure CLI (if not already installed):
-
-   ```bash
-   # macOS
-   brew install allure
-
-   # Linux
-   sudo apt-add-repository ppa:qameta/allure
-   sudo apt-get update
-   sudo apt-get install allure
-
-   # Windows
-   scoop install allure
-   ```
+```bash
+bun run allure:generate    # Generate static HTML report
+bun run allure:open        # Open the generated report
+```
 
 Allure reports include:
 
@@ -160,7 +167,7 @@ Allure reports include:
 - Feature and story organization
 - Severity levels (Critical, Normal, Minor)
 - Step-by-step test execution details
-- Screenshots on failures (when configured)
+- Screenshots on failures
 - Historical trends across test runs
 
 #### Test Markers
@@ -178,14 +185,22 @@ The project uses GitHub Actions with four workflows that form a complete pipelin
 | **Lint** (`lint.yml`) | Push/PR to `main` or `develop` | Runs ESLint across the codebase |
 | **E2E Tests** (`e2e-tests.yml`) | Push/PR to `main` or `develop`, manual dispatch | Builds locally, runs E2E tests, generates Allure + coverage reports, deploys reports to GitHub Pages |
 | **Vercel Preview E2E** (`vercel-e2e.yml`) | PR to `main` or `develop` | Waits for Vercel preview deployment, runs E2E tests against the live preview URL, posts pass/fail results as a PR comment |
-| **Deploy to Vercel** (`deploy-vercel.yml`) | After E2E Tests pass | Deploys to Vercel production only after E2E tests succeed |
+| **Deploy to Vercel** (`deploy-vercel.yml`) | After E2E Tests pass on `main` | Deploys to Vercel production only after E2E tests succeed |
 
 ### Required GitHub Secrets
+
+**Supabase / test credentials** (used by E2E workflows):
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `TEST_USER_EMAIL`
 - `TEST_USER_PASSWORD`
+
+**Vercel** (used by the deploy workflow):
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
 
 ### Branch Protection
 
@@ -237,7 +252,7 @@ To make E2E tests required before merging, enable branch protection rules in Git
 │       └── job.ts               # TypeScript interfaces
 ├── tests/
 │   └── e2e/
-│       ├── conftest.py          # Fixtures (authenticated browser session)
+│       ├── conftest.py          # Fixtures (authenticated browser session, coverage collection)
 │       ├── test_auth.py         # Auth flow tests
 │       └── test_job_application.py # CRUD, search, filter, export tests
 └── .github/
@@ -266,40 +281,36 @@ interface JobApplication {
 
 ## Architecture Decisions
 
-### Data Persistence Strategy
+### Authentication & Data Persistence
 
-Using Supabase for both authentication and data storage:
+Supabase handles both concerns:
 
-- User accounts with email/password or Google OAuth
-- PostgreSQL database with Row Level Security (RLS)
-- Data syncs automatically across all browsers when logged in
+- Email/password and Google OAuth via Supabase Auth; sessions managed through cookies and refreshed automatically by Next.js middleware
+- PostgreSQL with Row Level Security — all queries are automatically scoped to the authenticated user, enforced at the database level
 
-### URL Scraping Approach
+### URL Scraping
 
-Using server-side API route to:
+The scraping logic runs in a server-side API route (`/api/scrape`) to avoid CORS issues. It fetches the job posting HTML using a desktop User-Agent, then applies a priority chain to extract job title and company name:
 
-1. Fetch the HTML content of the provided URL
-2. Parse meta tags, JSON-LD structured data, and common patterns
-3. Extract job title and company name
-4. Return structured data to the client
+1. Site-specific regex patterns (LinkedIn, Indeed, Glassdoor, Greenhouse, Lever, DOU.ua, Work.ua)
+2. JSON-LD `JobPosting` structured data
+3. OpenGraph meta tags (`og:title`, `og:site_name`)
+4. HTML `<title>` tag fallback
 
-### Authentication Flow
+### Code Coverage from E2E Tests
 
-1. Users sign up/login via `/auth/login` or `/auth/signup`
-2. Supabase handles session management via cookies
-3. Middleware refreshes sessions automatically
-4. Protected routes redirect to login if not authenticated
+The app is built with `NODE_ENV=test` in CI, which activates `babel-plugin-istanbul` to instrument the JavaScript bundle. After each test, the pytest fixture reads `window.__coverage__` from the browser and writes it to `.nyc_output/`. `nyc` then aggregates all coverage files into HTML/JSON reports.
 
 ## Deployment
 
 The project is deployed to **Vercel** at [https://job-application-tracker-self.vercel.app](https://job-application-tracker-self.vercel.app).
 
-Production deployments happen automatically via the `deploy-vercel.yml` GitHub Actions workflow, which only triggers after E2E tests pass. This ensures no broken code reaches production.
+Production deployments are triggered automatically by the `deploy-vercel.yml` workflow only after E2E tests pass on `main`, ensuring no broken code reaches production.
 
-To deploy manually or to your own Vercel instance:
+To deploy to your own Vercel instance:
 
 1. Link the project: `vercel link`
-2. Set environment variables in Vercel dashboard:
+2. Set environment variables in the Vercel dashboard:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 3. Deploy: `vercel --prod`
@@ -307,11 +318,11 @@ To deploy manually or to your own Vercel instance:
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch from `develop`
 3. Make your changes
 4. Run `bun run lint` to ensure code quality
 5. Run `bun run test:e2e` to verify E2E tests pass (requires the app running on localhost:3000)
-6. Submit a pull request — E2E tests will run automatically against the Vercel preview deployment
+6. Submit a pull request to `develop` — E2E tests will run automatically against the Vercel preview deployment
 
 ## License
 
