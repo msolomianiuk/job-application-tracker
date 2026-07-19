@@ -77,10 +77,13 @@ export default function JobCard({ job, onUpdate, onDelete }: JobCardProps) {
   };
 
   const formatDate = (dateString: string) => {
+    // Fixed to UTC so the server render and client hydration produce the
+    // same text regardless of the viewer's timezone (React error #418).
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
+      timeZone: 'UTC',
     });
   };
 

@@ -1,5 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ScrapeResult } from '@/types/job';
+import { extractCompanyFromUrl } from '@/lib/scrape';
+
+/**
+ * When the page cannot be fetched (some job boards block requests coming
+ * from hosting-provider IPs), fall back to whatever the URL itself reveals
+ * so Auto-fill can still populate the company name.
+ */
+function fetchFailedResponse(parsedUrl: URL, url: string, reason: string) {
+  const companyName = extractCompanyFromUrl(parsedUrl.hostname, url);
+
+  if (companyName) {
+    return NextResponse.json({
+      success: true,
+      jobTitle: '',
+      companyName,
+      error: `${reason} — company taken from the URL; please enter the job title manually`,
+    });
+  }
+
+  return NextResponse.json(
+    { success: false, error: reason, jobTitle: '', companyName: '' },
+    { status: 400 },
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,25 +58,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch the page content
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept':
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-      },
-    });
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept':
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+        },
+      });
+    } catch {
+      return fetchFailedResponse(parsedUrl, url, 'Failed to fetch page');
+    }
 
     if (!response.ok) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Failed to fetch page: ${response.status}`,
-          jobTitle: '',
-          companyName: '',
-        },
-        { status: 400 },
+      return fetchFailedResponse(
+        parsedUrl,
+        url,
+        `Failed to fetch page: ${response.status}`,
       );
     }
 
@@ -96,12 +121,7 @@ function extractJobInfo(
   if (hostname.includes('dou.ua') || hostname.includes('jobs.dou.ua')) {
     // Extract company name from URL: /companies/nerdysoft/
     if (url) {
-      const companyMatch = url.match(/\/companies\/([^\/]+)\//i);
-      if (companyMatch) {
-        companyName = companyMatch[1].replace(/-/g, ' ');
-        // Capitalize first letter of each word
-        companyName = companyName.replace(/\b\w/g, (c) => c.toUpperCase());
-      }
+      companyName = extractCompanyFromUrl(hostname, url);
     }
 
     // Try to extract job title from page - look for h1 with vacancy title
@@ -244,13 +264,7 @@ function extractJobInfo(
 
     // Try to extract company from URL path: /company-name/jobs/...
     if (!companyName && url) {
-      const urlCompanyMatch = url.match(/greenhouse\.io\/([^\/]+)\/jobs/i);
-      if (urlCompanyMatch) {
-        // Convert URL slug to proper name (e.g., "alpaca" -> "Alpaca")
-        companyName = urlCompanyMatch[1]
-          .replace(/-/g, ' ')
-          .replace(/\b\w/g, (c) => c.toUpperCase());
-      }
+      companyName = extractCompanyFromUrl(hostname, url);
     }
   }
 
@@ -268,17 +282,7 @@ function extractJobInfo(
 
     // Also try to extract company from URL path: /company-name/job-id
     if (!companyName && url) {
-      const urlCompanyMatch = url.match(/lever\.co\/([^\/]+)\//i);
-      if (urlCompanyMatch) {
-        // Convert URL slug to proper name (e.g., "nekohealth" -> "Nekohealth")
-        const urlCompany = urlCompanyMatch[1]
-          .replace(/-/g, ' ')
-          .replace(/\b\w/g, (c) => c.toUpperCase());
-        // Only use URL company if we don't have one from title
-        if (!companyName) {
-          companyName = urlCompany;
-        }
-      }
+      companyName = extractCompanyFromUrl(hostname, url);
     }
   }
 

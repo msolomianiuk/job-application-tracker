@@ -40,8 +40,11 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
       const result: ScrapeResult = await response.json();
 
       if (result.success) {
-        setJobTitle(result.jobTitle);
-        setCompanyName(result.companyName);
+        // Partial results (e.g. company derived from the URL when the page
+        // is unreachable) leave fields empty - keep whatever is typed there.
+        if (result.jobTitle) setJobTitle(result.jobTitle);
+        if (result.companyName) setCompanyName(result.companyName);
+        if (result.error) setScrapeError(result.error);
       } else {
         setScrapeError(result.error || 'Failed to scrape job details');
       }
