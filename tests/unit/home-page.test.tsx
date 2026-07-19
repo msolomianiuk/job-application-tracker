@@ -1,6 +1,7 @@
 /* eslint-disable new-cap -- Home is a server component invoked directly as a function */
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import type { ReactElement } from 'react';
+import * as nextNavigation from 'next/navigation';
 import JobTracker from '@/components/JobTracker';
 
 const jobsResult: { data: unknown; error: unknown } = {
@@ -34,7 +35,10 @@ mock.module('@/lib/supabase/server', () => ({
 const redirect = mock((url: string) => {
   throw new Error(`NEXT_REDIRECT:${url}`);
 });
+// Bun module mocks persist across test files, so keep the real exports and
+// override only what this file needs.
 mock.module('next/navigation', () => ({
+  ...nextNavigation,
   redirect,
   useRouter: () => ({ push: () => undefined, refresh: () => undefined }),
 }));

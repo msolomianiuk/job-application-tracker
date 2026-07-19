@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import type { NextRequest } from 'next/server';
+import * as supabaseSsr from '@supabase/ssr';
 
 // The perf-critical contract of updateSession: it must refresh the session
 // via getClaims() (local JWT verification) and never call getUser(), which
@@ -13,7 +14,11 @@ const getUser = mock(async () => ({
   error: null,
 }));
 
+// Bun module mocks persist across test files in the same process, so keep
+// every real export (e.g. createBrowserClient, imported transitively by
+// other test files) and override only createServerClient.
 mock.module('@supabase/ssr', () => ({
+  ...supabaseSsr,
   createServerClient: () => ({ auth: { getClaims, getUser } }),
 }));
 
