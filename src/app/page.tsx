@@ -22,7 +22,7 @@ export default async function Home() {
     .order('created_at', { ascending: false });
 
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 py-4 sm:py-8 px-4">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 py-2 sm:py-4 px-4">
       <div className="max-w-7xl mx-auto">
         <JobTracker
           initialJobs={jobs || []}

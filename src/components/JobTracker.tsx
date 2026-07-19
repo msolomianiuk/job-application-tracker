@@ -120,7 +120,7 @@ export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
   }, []);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-3">
       {/* Top Navigation Bar */}
       <div className="bg-slate-900 text-white px-4 py-2 rounded-lg shadow-md flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-baseline gap-3">
@@ -158,9 +158,9 @@ export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
       )}
 
       {/* Main Content */}
-      <div className="space-y-6">
+      <div className="space-y-3">
         <div
-          className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${
+          className={`grid grid-cols-1 lg:grid-cols-3 gap-3 ${
             isJobFormExpanded ? 'lg:items-start' : 'lg:items-stretch'
           }`}
         >
