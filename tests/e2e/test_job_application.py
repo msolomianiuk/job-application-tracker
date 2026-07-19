@@ -35,9 +35,10 @@ def test_add_job_application(authenticated_page: Page):
     # Submit form
     page.click('button:has-text("Add Job Application")')
 
-    # Verify job was added
+    # Verify job was added: card header is a single line with the company
+    # first, then the job title
     locator = page.locator(
-        '.text-lg.font-semibold:has-text("Senior QA Engineer")'
+        'h3:has-text("TestCompanyAdd · Senior QA Engineer")'
     )
     expect(locator).to_be_visible(timeout=10000)
 
