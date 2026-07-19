@@ -122,4 +122,18 @@ describe('POST /api/scrape fallback when the page cannot be fetched', () => {
     expect(body.jobTitle).toBe('QA Engineer');
     expect(body.companyName).toBe('Acme');
   });
+
+  test('sends a full browser header set with the fetch', async () => {
+    const fetchMock = mock(async () => new Response('<html></html>', { status: 200 }));
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    await POST(scrapeRequest('https://example.com/careers/1'));
+
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    const headers = init.headers as Record<string, string>;
+    expect(headers['User-Agent']).toContain('Chrome');
+    expect(headers['Sec-Fetch-Mode']).toBe('navigate');
+    expect(headers['Sec-Ch-Ua-Platform']).toBeDefined();
+    expect(headers['Accept-Encoding']).toBeUndefined();
+  });
 });
