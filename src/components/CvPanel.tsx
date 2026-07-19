@@ -116,7 +116,7 @@ export default function CvPanel({ userId }: CvPanelProps) {
 
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 h-full flex flex-col"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4"
       data-testid="cv-panel"
     >
       <div className="flex justify-between items-center mb-2">
@@ -159,10 +159,7 @@ export default function CvPanel({ userId }: CvPanelProps) {
       )}
 
       {cvs === null ? (
-        <div
-          className="flex-1 min-h-0 space-y-2 overflow-hidden"
-          data-testid="cv-list-loading"
-        >
+        <div className="space-y-2" data-testid="cv-list-loading">
           <div className="h-11 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
           <div className="h-11 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
         </div>
@@ -174,10 +171,7 @@ export default function CvPanel({ userId }: CvPanelProps) {
           No CVs uploaded yet.
         </p>
       ) : (
-        <ul
-          className="flex-1 min-h-0 overflow-y-auto space-y-2"
-          data-testid="cv-list"
-        >
+        <ul className="space-y-2" data-testid="cv-list">
           {cvs.map((cv) => (
             <li
               key={cv.name}
