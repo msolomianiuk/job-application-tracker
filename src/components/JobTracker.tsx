@@ -6,10 +6,11 @@ import { useRouter } from 'next/navigation';
 import { JobApplication, JobInsert, JobUpdate } from '@/types/job';
 import JobForm from './JobForm';
 import JobList from './JobList';
+import CvPanel from './CvPanel';
 
 interface JobTrackerProps {
   initialJobs: JobApplication[];
-  user: { email?: string };
+  user: { id: string; email?: string };
 }
 
 export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
@@ -135,7 +136,12 @@ export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
 
       {/* Main Content */}
       <div className="space-y-6">
-        <JobForm onAddJob={handleAddJob} isLoading={isLoading} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          <div className="lg:col-span-2">
+            <JobForm onAddJob={handleAddJob} isLoading={isLoading} />
+          </div>
+          <CvPanel userId={user.id} />
+        </div>
         <JobList
           jobs={jobs}
           onUpdate={handleUpdateJob}

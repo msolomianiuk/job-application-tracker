@@ -24,7 +24,10 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 py-4 sm:py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        <JobTracker initialJobs={jobs || []} user={{ email: claims.email }} />
+        <JobTracker
+          initialJobs={jobs || []}
+          user={{ id: claims.sub, email: claims.email }}
+        />
       </div>
     </main>
   );
