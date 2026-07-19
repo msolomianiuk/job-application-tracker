@@ -1,7 +1,7 @@
 export const CV_BUCKET = 'cvs';
 export const MAX_CVS = 2;
 export const MAX_CV_BYTES = 300 * 1024;
-export const ACCEPTED_CV_EXTENSIONS = ['.pdf', '.doc', '.docx'];
+export const ACCEPTED_CV_EXTENSIONS = ['.pdf'];
 
 export interface CvFile {
   /** Object name inside the user's folder, e.g. "1752912000000-resume.pdf" */

@@ -32,7 +32,7 @@ describe('CvPanel', () => {
     expect(html).toContain('My CVs');
     expect(html).toContain('Upload CV');
     expect(html).toContain('data-testid="cv-upload-input"');
-    expect(html).toContain('accept=".pdf,.doc,.docx"');
+    expect(html).toContain('accept=".pdf"');
   });
 
   test('explains the 2-CV retention policy', () => {

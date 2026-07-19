@@ -8,11 +8,7 @@ VALUES (
   'cvs',
   false,
   307200, -- 300 KB
-  ARRAY[
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-  ]
+  ARRAY['application/pdf']
 )
 ON CONFLICT (id) DO UPDATE SET
   file_size_limit = EXCLUDED.file_size_limit,

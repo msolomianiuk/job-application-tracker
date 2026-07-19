@@ -76,10 +76,11 @@ describe('file naming', () => {
 });
 
 describe('validation and formatting', () => {
-  test('accepts pdf, doc and docx regardless of case', () => {
+  test('accepts only pdf regardless of case', () => {
     expect(isAcceptedCvFile('cv.pdf')).toBe(true);
-    expect(isAcceptedCvFile('CV.DOCX')).toBe(true);
-    expect(isAcceptedCvFile('cv.doc')).toBe(true);
+    expect(isAcceptedCvFile('CV.PDF')).toBe(true);
+    expect(isAcceptedCvFile('cv.docx')).toBe(false);
+    expect(isAcceptedCvFile('cv.doc')).toBe(false);
     expect(isAcceptedCvFile('cv.txt')).toBe(false);
     expect(isAcceptedCvFile('cv.pdf.exe')).toBe(false);
   });
