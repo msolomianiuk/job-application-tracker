@@ -87,12 +87,12 @@ describe('Home page (server component)', () => {
 
     const tracker = page.props.children.props.children as ReactElement<{
       initialJobs: unknown[];
-      user: { email?: string };
+      user: { id: string; email?: string };
     }>;
 
     expect(tracker.type).toBe(JobTracker);
     expect(tracker.props.initialJobs).toEqual([{ id: 'job-1' }]);
-    expect(tracker.props.user).toEqual({ email: 'a@b.com' });
+    expect(tracker.props.user).toEqual({ id: 'user-123', email: 'a@b.com' });
   });
 
   test('renders an empty job list when the query returns no data', async () => {
