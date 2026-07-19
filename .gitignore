@@ -9,3 +9,7 @@ __pycache__
 allure-results/
 allure-report/
 .pytest_cache/
+# Babel config is generated in CI only for coverage-instrumented test builds.
+# Its presence disables SWC and ships istanbul instrumentation - keep it out of the repo.
+.babelrc
+tsconfig.tsbuildinfo

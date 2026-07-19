@@ -30,11 +30,13 @@ export async function updateSession(request: NextRequest) {
   );
 
   // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
+  // supabase.auth.getClaims(). A simple mistake could make it very hard to
+  // debug issues with users being randomly logged out.
 
-  // refreshing the auth token
-  await supabase.auth.getUser();
+  // Refreshes the auth token if expired. getClaims() verifies the JWT
+  // locally (with asymmetric signing keys) instead of calling the Auth
+  // server on every request like getUser() does.
+  await supabase.auth.getClaims();
 
   return supabaseResponse;
 }
