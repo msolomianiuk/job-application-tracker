@@ -57,7 +57,7 @@ export default function CvPanel({ userId }: CvPanelProps) {
       return;
     }
     if (file.size > MAX_CV_BYTES) {
-      setError('File is too large (max 10 MB)');
+      setError('File is too large (max 300 KB)');
       return;
     }
 
@@ -112,12 +112,14 @@ export default function CvPanel({ userId }: CvPanelProps) {
     URL.revokeObjectURL(objectUrl);
   };
 
+  const retentionNote = `Your ${MAX_CVS} most recent CVs are kept; uploading a new one replaces the oldest.`;
+
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 h-full flex flex-col"
       data-testid="cv-panel"
     >
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-2">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           My CVs
         </h2>
@@ -140,14 +142,16 @@ export default function CvPanel({ userId }: CvPanelProps) {
         />
       </div>
 
-      <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-        Your {MAX_CVS} most recent CVs are kept; uploading a new one replaces
-        the oldest.
+      <p
+        className="text-xs text-gray-500 dark:text-gray-400 mb-2 truncate"
+        title={retentionNote}
+      >
+        {retentionNote}
       </p>
 
       {error && (
         <div
-          className="mb-4 p-3 text-sm bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg"
+          className="mb-2 px-3 py-2 text-sm bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg"
           data-testid="cv-error"
         >
           {error}
@@ -155,9 +159,12 @@ export default function CvPanel({ userId }: CvPanelProps) {
       )}
 
       {cvs === null ? (
-        <div className="space-y-3" data-testid="cv-list-loading">
-          <div className="h-14 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
-          <div className="h-14 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
+        <div
+          className="flex-1 min-h-0 space-y-2 overflow-hidden"
+          data-testid="cv-list-loading"
+        >
+          <div className="h-11 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
+          <div className="h-11 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
         </div>
       ) : cvs.length === 0 ? (
         <p
@@ -167,11 +174,14 @@ export default function CvPanel({ userId }: CvPanelProps) {
           No CVs uploaded yet.
         </p>
       ) : (
-        <ul className="space-y-3" data-testid="cv-list">
+        <ul
+          className="flex-1 min-h-0 overflow-y-auto space-y-2"
+          data-testid="cv-list"
+        >
           {cvs.map((cv) => (
             <li
               key={cv.name}
-              className="flex items-center justify-between gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-md"
+              className="flex items-center justify-between gap-3 px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded-md"
               data-testid="cv-item"
             >
               <div className="min-w-0">
@@ -185,7 +195,7 @@ export default function CvPanel({ userId }: CvPanelProps) {
               <button
                 type="button"
                 onClick={() => handleDownload(cv)}
-                className="shrink-0 px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md transition-colors"
+                className="shrink-0 px-3 py-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md transition-colors"
                 data-testid="cv-download-button"
               >
                 Download

@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   MAX_CVS,
+  MAX_CV_BYTES,
   buildCvPath,
   displayName,
   formatBytes,
@@ -73,10 +76,11 @@ describe('file naming', () => {
 });
 
 describe('validation and formatting', () => {
-  test('accepts pdf, doc and docx regardless of case', () => {
+  test('accepts only pdf regardless of case', () => {
     expect(isAcceptedCvFile('cv.pdf')).toBe(true);
-    expect(isAcceptedCvFile('CV.DOCX')).toBe(true);
-    expect(isAcceptedCvFile('cv.doc')).toBe(true);
+    expect(isAcceptedCvFile('CV.PDF')).toBe(true);
+    expect(isAcceptedCvFile('cv.docx')).toBe(false);
+    expect(isAcceptedCvFile('cv.doc')).toBe(false);
     expect(isAcceptedCvFile('cv.txt')).toBe(false);
     expect(isAcceptedCvFile('cv.pdf.exe')).toBe(false);
   });
@@ -89,5 +93,15 @@ describe('validation and formatting', () => {
   test('formatUploadDate renders a readable date and tolerates bad input', () => {
     expect(formatUploadDate('2026-07-19T10:00:00Z')).toBe('Jul 19, 2026');
     expect(formatUploadDate('not-a-date')).toBe('');
+  });
+
+  test('upload cap is 300 KB and matches the storage bucket limit', () => {
+    expect(MAX_CV_BYTES).toBe(300 * 1024);
+
+    const sql = readFileSync(
+      join(import.meta.dir, '..', '..', 'supabase', 'storage-cvs.sql'),
+      'utf8',
+    );
+    expect(sql).toContain(String(MAX_CV_BYTES));
   });
 });

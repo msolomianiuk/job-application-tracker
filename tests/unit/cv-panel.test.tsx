@@ -32,7 +32,7 @@ describe('CvPanel', () => {
     expect(html).toContain('My CVs');
     expect(html).toContain('Upload CV');
     expect(html).toContain('data-testid="cv-upload-input"');
-    expect(html).toContain('accept=".pdf,.doc,.docx"');
+    expect(html).toContain('accept=".pdf"');
   });
 
   test('explains the 2-CV retention policy', () => {
@@ -60,5 +60,28 @@ describe('JobTracker layout', () => {
     expect(html).toContain('lg:col-span-2');
     expect(html).toContain('Add New Job Application');
     expect(html).toContain('data-testid="cv-panel"');
+  });
+
+  test('panels stretch to equal height within the row', () => {
+    const html = renderToStaticMarkup(
+      <JobTracker initialJobs={[]} user={{ id: 'user-123', email: 'a@b.com' }} />,
+    );
+
+    // Default grid alignment (stretch) + h-full on the form card keeps the
+    // two panels the same height.
+    expect(html).not.toContain('items-start');
+    expect(html).toMatch(/<form[^>]*h-full/);
+  });
+
+  test('form drives the row height; CV panel fills it exactly at lg', () => {
+    const html = renderToStaticMarkup(
+      <JobTracker initialJobs={[]} user={{ id: 'user-123', email: 'a@b.com' }} />,
+    );
+
+    // Absolute positioning inside the grid cell keeps the CV panel from
+    // growing the row, so it matches the form with 0, 1, or 2 CVs.
+    expect(html).toContain('lg:absolute lg:inset-0');
+    expect(html).toMatch(/data-testid="cv-panel"[^>]*/);
+    expect(html).toMatch(/h-full flex flex-col[^"]*"\s+data-testid="cv-panel"/);
   });
 });
