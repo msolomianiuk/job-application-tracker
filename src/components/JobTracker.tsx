@@ -140,7 +140,14 @@ export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
           <div className="lg:col-span-2">
             <JobForm onAddJob={handleAddJob} isLoading={isLoading} />
           </div>
-          <CvPanel userId={user.id} />
+          {/* The form defines the row height; the CV panel fills exactly
+              that space (absolute at lg), scrolling internally if needed,
+              so both cards match in every state. */}
+          <div className="relative">
+            <div className="lg:absolute lg:inset-0">
+              <CvPanel userId={user.id} />
+            </div>
+          </div>
         </div>
         <JobList
           jobs={jobs}
