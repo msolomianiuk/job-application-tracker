@@ -61,4 +61,15 @@ describe('JobTracker layout', () => {
     expect(html).toContain('Add New Job Application');
     expect(html).toContain('data-testid="cv-panel"');
   });
+
+  test('panels stretch to equal height within the row', () => {
+    const html = renderToStaticMarkup(
+      <JobTracker initialJobs={[]} user={{ id: 'user-123', email: 'a@b.com' }} />,
+    );
+
+    // Default grid alignment (stretch) + h-full on the form card keeps the
+    // two panels the same height.
+    expect(html).not.toContain('items-start');
+    expect(html).toMatch(/<form[^>]*h-full/);
+  });
 });

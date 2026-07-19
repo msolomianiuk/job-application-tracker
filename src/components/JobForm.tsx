@@ -107,7 +107,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 h-full"
     >
       <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
