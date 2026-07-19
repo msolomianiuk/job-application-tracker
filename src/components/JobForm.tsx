@@ -6,9 +6,14 @@ import { JobStatus, ScrapeResult, JobInsert } from '@/types/job';
 interface JobFormProps {
   onAddJob: (job: JobInsert) => Promise<void>;
   isLoading?: boolean;
+  onExpandedChange?: (isExpanded: boolean) => void;
 }
 
-export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
+export default function JobForm({
+  onAddJob,
+  isLoading,
+  onExpandedChange,
+}: JobFormProps) {
   const [url, setUrl] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -19,6 +24,12 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const updateExpanded = (expanded: boolean) => {
+    if (expanded === isExpanded) return;
+
+    setIsExpanded(expanded);
+    onExpandedChange?.(expanded);
+  };
 
   const handleScrape = async (urlToScrape?: string) => {
     const targetUrl = urlToScrape || url;
@@ -26,7 +37,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
 
     setIsScraping(true);
     setScrapeError('');
-    setIsExpanded(true);
+    updateExpanded(true);
 
     try {
       const response = await fetch('/api/scrape', {
@@ -66,7 +77,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
       e.preventDefault();
       // Set the URL immediately and trigger scrape
       setUrl(pastedText);
-      setIsExpanded(true);
+      updateExpanded(true);
       // Only auto-scrape if job title and company are empty
       if (!jobTitle && !companyName && !isScraping) {
         // Use setTimeout to ensure state is updated before scraping
@@ -96,7 +107,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
       setStatus('applied');
       setNotes('');
       setScrapeError('');
-      setIsExpanded(false);
+      updateExpanded(false);
     } catch (error) {
       console.error('Error adding job:', error);
     } finally {
@@ -107,9 +118,17 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 ${
+        isExpanded ? '' : 'lg:h-full'
+      }`}
+      data-expanded={isExpanded}
     >
-      <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+      <div
+        className={`flex justify-between items-center cursor-pointer ${
+          isExpanded ? 'mb-4' : 'mb-2'
+        }`}
+        onClick={() => updateExpanded(!isExpanded)}
+      >
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           Add New Job Application
         </h2>
@@ -129,7 +148,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
       </div>
 
       {/* URL Input with Scrape Button */}
-      <div className="mb-4">
+      <div className={isExpanded ? 'mb-4' : ''}>
         <label
           htmlFor="url"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
@@ -143,7 +162,7 @@ export default function JobForm({ onAddJob, isLoading }: JobFormProps) {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onPaste={handlePaste}
-            onFocus={() => setIsExpanded(true)}
+            onFocus={() => updateExpanded(true)}
             required
             placeholder="https://example.com/job/..."
             className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"

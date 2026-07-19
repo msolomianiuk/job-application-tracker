@@ -109,14 +109,16 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
       margin-bottom: 12px;
       gap: 15px;
     }
-    .job-title {
-      font-size: 20px;
-      font-weight: 600;
+    .job-heading {
+      font-size: 18px;
       color: #111827;
-      margin-bottom: 4px;
     }
     .company-name {
+      font-weight: 600;
+    }
+    .job-title {
       font-size: 16px;
+      font-weight: 500;
       color: #6b7280;
     }
     .status-badge {
@@ -189,9 +191,9 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
       (job) => `
         <div class="job-card">
           <div class="job-header">
-            <div>
-              <div class="job-title">${escapeHtml(job.job_title)}</div>
-              <div class="company-name">${escapeHtml(job.company_name)}</div>
+            <div class="job-heading">
+              <span class="company-name">${escapeHtml(job.company_name)}</span>
+              ${job.job_title ? `<span class="job-title"> · ${escapeHtml(job.job_title)}</span>` : ''}
             </div>
             <span class="status-badge status-${job.status}">${statusLabels[job.status]}</span>
           </div>
@@ -275,7 +277,7 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
   return (
     <div>
       {/* Stats Bar */}
-      <div className="flex flex-wrap gap-2 mb-4 items-center justify-between">
+      <div className="flex flex-wrap gap-2 mb-4 items-center">
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilterBy('all')}
@@ -314,48 +316,27 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
             <span className="font-medium">{statusCounts.rejected || 0}</span> Rejected
           </button>
         </div>
-        {jobs.length > 0 && (
-          <button
-            onClick={exportToHTML}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors flex items-center gap-2"
-            title="Export all jobs to HTML"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Export HTML
-          </button>
-        )}
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row gap-2 mb-4">
         <div className="relative sm:w-64">
           <input
             type="text"
             placeholder="Search jobs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            className="h-8 w-full px-2.5 pr-8 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               aria-label="Clear search"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -372,7 +353,7 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="appearance-none w-full sm:w-auto pl-3 pr-9 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer"
+            className="appearance-none h-8 w-full sm:w-auto pl-2.5 pr-8 text-sm border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -385,6 +366,27 @@ export default function JobList({ jobs, onUpdate, onDelete }: JobListProps) {
             </svg>
           </div>
         </div>
+        {jobs.length > 0 && (
+          <button
+            onClick={exportToHTML}
+            className="flex h-8 items-center justify-center gap-1.5 px-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors sm:ml-auto"
+            title="Export all jobs to HTML"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-3.5 w-3.5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Export HTML
+          </button>
+        )}
       </div>
 
       {/* Job Cards */}

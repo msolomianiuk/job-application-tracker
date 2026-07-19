@@ -26,11 +26,13 @@ const { default: CvPanel } = await import('@/components/CvPanel');
 const { default: JobTracker } = await import('@/components/JobTracker');
 
 describe('CvPanel', () => {
-  test('renders the heading, upload button and file input', () => {
+  test('renders a compact upload control without a panel heading', () => {
     const html = renderToStaticMarkup(<CvPanel userId="user-123" />);
 
-    expect(html).toContain('My CVs');
+    expect(html).not.toContain('My CVs');
     expect(html).toContain('Upload CV');
+    expect(html).toContain('h-6');
+    expect(html).toContain('role="tooltip"');
     expect(html).toContain('data-testid="cv-upload-input"');
     expect(html).toContain('accept=".pdf"');
   });
@@ -39,6 +41,9 @@ describe('CvPanel', () => {
     const html = renderToStaticMarkup(<CvPanel userId="user-123" />);
 
     expect(html).toContain('2 most recent CVs');
+    expect(html.indexOf('Upload CV')).toBeLessThan(
+      html.indexOf('2 most recent CVs'),
+    );
   });
 
   test('shows the loading skeleton before the list is fetched', () => {
@@ -47,6 +52,15 @@ describe('CvPanel', () => {
     const html = renderToStaticMarkup(<CvPanel userId="user-123" />);
 
     expect(html).toContain('data-testid="cv-list-loading"');
+  });
+
+  test('can preserve its collapsed desktop height while the form expands', () => {
+    const html = renderToStaticMarkup(
+      <CvPanel userId="user-123" lockedHeight={144} />,
+    );
+
+    expect(html).toContain('lg:h-[var(--cv-panel-height)]');
+    expect(html).toContain('--cv-panel-height:144px');
   });
 });
 
@@ -58,19 +72,20 @@ describe('JobTracker layout', () => {
 
     expect(html).toContain('lg:grid-cols-3');
     expect(html).toContain('lg:col-span-2');
+    expect(html).toContain('href="/"');
+    expect(html).toContain('Track your job applications in one place.');
     expect(html).toContain('Add New Job Application');
     expect(html).toContain('data-testid="cv-panel"');
   });
 
-  test('CV panel keeps its own content height, not stretched to the form', () => {
+  test('collapsed form and CV panel stretch to the same row height', () => {
     const html = renderToStaticMarkup(
       <JobTracker initialJobs={[]} user={{ id: 'user-123', email: 'a@b.com' }} />,
     );
 
-    // items-start lets each card size to its content; the CV panel must not
-    // be forced to fill a taller (expanded) form via stretch or absolute fill.
-    expect(html).toContain('items-start');
+    expect(html).toContain('lg:items-stretch');
+    expect(html).toContain('lg:h-full');
+    expect(html).not.toContain('self-start');
     expect(html).not.toContain('lg:absolute');
-    expect(html).not.toMatch(/h-full[^"]*"\s+data-testid="cv-panel"/);
   });
 });

@@ -19,11 +19,13 @@ import {
 
 interface CvPanelProps {
   userId: string;
+  lockedHeight?: number;
 }
 
-export default function CvPanel({ userId }: CvPanelProps) {
+export default function CvPanel({ userId, lockedHeight }: CvPanelProps) {
   const [cvs, setCvs] = useState<CvFile[] | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [deletingCv, setDeletingCv] = useState<string | null>(null);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
@@ -112,42 +114,85 @@ export default function CvPanel({ userId }: CvPanelProps) {
     URL.revokeObjectURL(objectUrl);
   };
 
+  const handleDelete = async (cv: CvFile) => {
+    const cvName = displayName(cv.name);
+    if (!window.confirm(`Delete "${cvName}"? This cannot be undone.`)) return;
+
+    setDeletingCv(cv.name);
+    setError('');
+
+    try {
+      const { error: deleteError } = await supabase.storage
+        .from(CV_BUCKET)
+        .remove([`${userId}/${cv.name}`]);
+
+      if (deleteError) {
+        setError('Failed to delete CV');
+        return;
+      }
+
+      setCvs((current) =>
+        current?.filter((currentCv) => currentCv.name !== cv.name) || [],
+      );
+    } finally {
+      setDeletingCv(null);
+    }
+  };
+
   const retentionNote = `Your ${MAX_CVS} most recent CVs are kept; uploading a new one replaces the oldest.`;
+  const uploadButton = (
+    <button
+      type="button"
+      onClick={() => fileInputRef.current?.click()}
+      disabled={isUploading}
+      className="h-6 shrink-0 px-2 text-xs leading-none font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded transition-colors"
+      data-testid="cv-upload-button"
+    >
+      {isUploading ? 'Uploading…' : 'Upload CV'}
+    </button>
+  );
+  const retentionTooltip = (
+    <div className="relative">
+      <button
+        type="button"
+        className="peer flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+        aria-label="CV retention policy"
+        aria-describedby="cv-retention-tooltip"
+      >
+        i
+      </button>
+      <div
+        id="cv-retention-tooltip"
+        role="tooltip"
+        className="pointer-events-none absolute left-0 top-full z-20 mt-1 w-64 rounded-md bg-slate-900 px-2.5 py-2 text-xs leading-4 text-white opacity-0 shadow-lg transition-opacity peer-hover:opacity-100 peer-focus-visible:opacity-100"
+      >
+        {retentionNote}
+      </div>
+    </div>
+  );
 
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4"
+      className={`flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md p-2 ${
+        lockedHeight ? 'lg:h-[var(--cv-panel-height)]' : ''
+      }`}
+      style={
+        lockedHeight ? ({
+          '--cv-panel-height': `${lockedHeight}px`,
+        } as React.CSSProperties) : undefined
+      }
+      role="region"
+      aria-label="CV files"
       data-testid="cv-panel"
     >
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-          My CVs
-        </h2>
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isUploading}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-md transition-colors"
-          data-testid="cv-upload-button"
-        >
-          {isUploading ? 'Uploading…' : 'Upload CV'}
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={ACCEPTED_CV_EXTENSIONS.join(',')}
-          onChange={handleUpload}
-          className="hidden"
-          data-testid="cv-upload-input"
-        />
-      </div>
-
-      <p
-        className="text-xs text-gray-500 dark:text-gray-400 mb-2 truncate"
-        title={retentionNote}
-      >
-        {retentionNote}
-      </p>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={ACCEPTED_CV_EXTENSIONS.join(',')}
+        onChange={handleUpload}
+        className="hidden"
+        data-testid="cv-upload-input"
+      />
 
       {error && (
         <div
@@ -159,23 +204,40 @@ export default function CvPanel({ userId }: CvPanelProps) {
       )}
 
       {cvs === null ? (
-        <div className="space-y-2" data-testid="cv-list-loading">
-          <div className="h-11 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
-          <div className="h-11 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
-        </div>
+        <>
+          <div className="flex items-center gap-1 mb-1">
+            {uploadButton}
+            {retentionTooltip}
+          </div>
+          <div className="space-y-1" data-testid="cv-list-loading">
+            <div className="h-11 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
+            <div className="h-11 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
+          </div>
+        </>
       ) : cvs.length === 0 ? (
-        <p
-          className="text-sm text-gray-500 dark:text-gray-400"
+        <div
+          className="flex flex-1 items-center justify-center"
           data-testid="cv-list-empty"
         >
-          No CVs uploaded yet.
-        </p>
+          <div className="relative">
+            {uploadButton}
+            <div className="absolute left-full top-0 ml-1">
+              {retentionTooltip}
+            </div>
+          </div>
+          <span className="sr-only">No CVs uploaded yet.</span>
+        </div>
       ) : (
-        <ul className="space-y-2" data-testid="cv-list">
-          {cvs.map((cv) => (
+        <>
+          <div className="flex items-center gap-1 mb-1">
+            {uploadButton}
+            {retentionTooltip}
+          </div>
+          <ul className="space-y-1" data-testid="cv-list">
+            {cvs.map((cv) => (
             <li
               key={cv.name}
-              className="flex items-center justify-between gap-3 px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded-md"
+              className="group flex items-center justify-between gap-3 px-3 py-1 bg-gray-50 dark:bg-gray-700/50 rounded-md"
               data-testid="cv-item"
             >
               <div className="min-w-0">
@@ -186,17 +248,32 @@ export default function CvPanel({ userId }: CvPanelProps) {
                   {formatUploadDate(cv.createdAt)} · {formatBytes(cv.sizeBytes)}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => handleDownload(cv)}
-                className="shrink-0 px-3 py-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md transition-colors"
-                data-testid="cv-download-button"
-              >
-                Download
-              </button>
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => handleDownload(cv)}
+                  disabled={deletingCv === cv.name}
+                  className="px-3 py-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md transition-colors disabled:opacity-50"
+                  data-testid="cv-download-button"
+                >
+                  Download
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(cv)}
+                  disabled={deletingCv !== null}
+                  aria-label={`Delete ${displayName(cv.name)}`}
+                  title="Delete CV"
+                  className="flex h-6 w-6 items-center justify-center rounded text-base leading-none text-gray-400 opacity-0 transition-colors hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:cursor-wait dark:text-gray-500 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                  data-testid="cv-delete-button"
+                >
+                  {deletingCv === cv.name ? '…' : '×'}
+                </button>
+              </div>
             </li>
-          ))}
-        </ul>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

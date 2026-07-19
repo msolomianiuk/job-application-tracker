@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { JobApplication, JobInsert, JobUpdate } from '@/types/job';
 import JobForm from './JobForm';
 import JobList from './JobList';
@@ -16,7 +17,11 @@ interface JobTrackerProps {
 export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
   const [jobs, setJobs] = useState<JobApplication[]>(initialJobs);
   const [isLoading, setIsLoading] = useState(false);
+  const [isJobFormExpanded, setIsJobFormExpanded] = useState(false);
+  const [collapsedPanelHeight, setCollapsedPanelHeight] = useState<number>();
   const [error, setError] = useState<string | null>(null);
+  const jobFormColumnRef = useRef<HTMLDivElement>(null);
+  const isJobFormExpandedRef = useRef(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -101,21 +106,39 @@ export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
     }
   }, []);
 
+  const handleJobFormExpandedChange = useCallback((expanded: boolean) => {
+    if (expanded === isJobFormExpandedRef.current) return;
+
+    if (expanded) {
+      const collapsedHeight =
+        jobFormColumnRef.current?.getBoundingClientRect().height;
+      if (collapsedHeight) setCollapsedPanelHeight(collapsedHeight);
+    }
+
+    isJobFormExpandedRef.current = expanded;
+    setIsJobFormExpanded(expanded);
+  }, []);
+
   return (
     <div className="flex flex-col gap-6">
       {/* Top Navigation Bar */}
-      <div className="bg-slate-900 text-white p-4 rounded-lg shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold">Job Application Tracker</h1>
-          <p className="text-gray-400 text-xs mt-1 hidden md:block">
+      <div className="bg-slate-900 text-white px-4 py-2 rounded-lg shadow-md flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-baseline gap-3">
+          <Link
+            href="/"
+            className="shrink-0 text-lg font-bold hover:text-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded-sm transition-colors"
+          >
+            Job Application Tracker
+          </Link>
+          <p className="min-w-0 truncate text-xs text-gray-400">
             Track your job applications in one place. Paste a job posting URL to auto-fill details.
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-sm text-gray-300 break-all hidden sm:block">{user.email}</div>
+        <div className="flex shrink-0 items-center gap-3">
+          <div className="text-xs text-gray-300 break-all hidden md:block">{user.email}</div>
           <button
             onClick={handleSignOut}
-            className="px-4 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md transition-colors"
+            className="px-3 py-1.5 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-md transition-colors"
           >
             Sign out
           </button>
@@ -136,14 +159,24 @@ export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
 
       {/* Main Content */}
       <div className="space-y-6">
-        {/* items-start: each card keeps its own content height. The CV
-            panel never stretches to match a taller (expanded) form; it
-            just sizes to its header, note and up to 2 CV rows. */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          <div className="lg:col-span-2">
-            <JobForm onAddJob={handleAddJob} isLoading={isLoading} />
+        <div
+          className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${
+            isJobFormExpanded ? 'lg:items-start' : 'lg:items-stretch'
+          }`}
+        >
+          <div ref={jobFormColumnRef} className="lg:col-span-2">
+            <JobForm
+              onAddJob={handleAddJob}
+              isLoading={isLoading}
+              onExpandedChange={handleJobFormExpandedChange}
+            />
           </div>
-          <CvPanel userId={user.id} />
+          <CvPanel
+            userId={user.id}
+            lockedHeight={
+              isJobFormExpanded ? collapsedPanelHeight : undefined
+            }
+          />
         </div>
         <JobList
           jobs={jobs}
