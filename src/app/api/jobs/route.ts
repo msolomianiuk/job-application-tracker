@@ -1,24 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getUserClaims } from '@/lib/supabase/claims';
 import { JobInsert, JobUpdate } from '@/types/job';
 
 // GET - Fetch all jobs for the authenticated user
 export async function GET() {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const claims = await getUserClaims(supabase);
 
-  if (authError || !user) {
+  if (!claims) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { data: jobs, error } = await supabase
     .from('jobs')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', claims.sub)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -36,12 +34,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const claims = await getUserClaims(supabase);
 
-  if (authError || !user) {
+  if (!claims) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -68,7 +63,7 @@ export async function POST(request: NextRequest) {
     const { data: existingJob } = await supabase
       .from('jobs')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', claims.sub)
       .eq('url', body.url)
       .single();
 
@@ -82,7 +77,7 @@ export async function POST(request: NextRequest) {
     const { data: job, error } = await supabase
       .from('jobs')
       .insert({
-        user_id: user.id,
+        user_id: claims.sub,
         url: body.url,
         job_title: body.job_title || '',
         company_name: body.company_name,
@@ -114,12 +109,9 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const claims = await getUserClaims(supabase);
 
-  if (authError || !user) {
+  if (!claims) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -137,7 +129,7 @@ export async function PUT(request: NextRequest) {
       .from('jobs')
       .update(updates)
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', claims.sub)
       .select()
       .single();
 
@@ -163,12 +155,9 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const claims = await getUserClaims(supabase);
 
-  if (authError || !user) {
+  if (!claims) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -183,7 +172,7 @@ export async function DELETE(request: NextRequest) {
     .from('jobs')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id);
+    .eq('user_id', claims.sub);
 
   if (error) {
     console.error('Error deleting job:', error);

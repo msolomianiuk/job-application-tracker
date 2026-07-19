@@ -3,14 +3,13 @@
 import { useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { User } from '@supabase/supabase-js';
 import { JobApplication, JobInsert, JobUpdate } from '@/types/job';
 import JobForm from './JobForm';
 import JobList from './JobList';
 
 interface JobTrackerProps {
   initialJobs: JobApplication[];
-  user: User;
+  user: { email?: string };
 }
 
 export default function JobTracker({ initialJobs, user }: JobTrackerProps) {

@@ -50,6 +50,16 @@ jobs:
           echo "TEST_USER_EMAIL=${{ secrets.TEST_USER_EMAIL }}" >> .env.local
           echo "TEST_USER_PASSWORD=${{ secrets.TEST_USER_PASSWORD }}" >> .env.local
 
+      - name: Run unit tests
+        run: bun run test:unit
+
+      - name: Enable coverage instrumentation (test build only)
+        # .babelrc is intentionally not committed: its presence switches Next.js
+        # from SWC to Babel and ships istanbul coverage maps in the bundles.
+        # Generate it here so only this instrumented CI build pays that cost.
+        run: |
+          echo '{ "presets": ["next/babel"], "plugins": ["istanbul"] }' > .babelrc
+
       - name: Build application
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
