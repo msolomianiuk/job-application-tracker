@@ -62,26 +62,15 @@ describe('JobTracker layout', () => {
     expect(html).toContain('data-testid="cv-panel"');
   });
 
-  test('panels stretch to equal height within the row', () => {
+  test('CV panel keeps its own content height, not stretched to the form', () => {
     const html = renderToStaticMarkup(
       <JobTracker initialJobs={[]} user={{ id: 'user-123', email: 'a@b.com' }} />,
     );
 
-    // Default grid alignment (stretch) + h-full on the form card keeps the
-    // two panels the same height.
-    expect(html).not.toContain('items-start');
-    expect(html).toMatch(/<form[^>]*h-full/);
-  });
-
-  test('form drives the row height; CV panel fills it exactly at lg', () => {
-    const html = renderToStaticMarkup(
-      <JobTracker initialJobs={[]} user={{ id: 'user-123', email: 'a@b.com' }} />,
-    );
-
-    // Absolute positioning inside the grid cell keeps the CV panel from
-    // growing the row, so it matches the form with 0, 1, or 2 CVs.
-    expect(html).toContain('lg:absolute lg:inset-0');
-    expect(html).toMatch(/data-testid="cv-panel"[^>]*/);
-    expect(html).toMatch(/h-full flex flex-col[^"]*"\s+data-testid="cv-panel"/);
+    // items-start lets each card size to its content; the CV panel must not
+    // be forced to fill a taller (expanded) form via stretch or absolute fill.
+    expect(html).toContain('items-start');
+    expect(html).not.toContain('lg:absolute');
+    expect(html).not.toMatch(/h-full[^"]*"\s+data-testid="cv-panel"/);
   });
 });

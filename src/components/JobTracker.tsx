@@ -136,18 +136,14 @@ export default function JobTracker({ initialJobs, user }: JobTrackerProps) {
 
       {/* Main Content */}
       <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* items-start: each card keeps its own content height. The CV
+            panel never stretches to match a taller (expanded) form; it
+            just sizes to its header, note and up to 2 CV rows. */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           <div className="lg:col-span-2">
             <JobForm onAddJob={handleAddJob} isLoading={isLoading} />
           </div>
-          {/* The form defines the row height; the CV panel fills exactly
-              that space (absolute at lg), scrolling internally if needed,
-              so both cards match in every state. */}
-          <div className="relative">
-            <div className="lg:absolute lg:inset-0">
-              <CvPanel userId={user.id} />
-            </div>
-          </div>
+          <CvPanel userId={user.id} />
         </div>
         <JobList
           jobs={jobs}
