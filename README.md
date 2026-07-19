@@ -138,7 +138,6 @@ Workflows in `.github/workflows/`:
 
 - `lint.yml` - ESLint on push/PR (`main`, `develop`)
 - `e2e-tests.yml` - E2E on push/PR + manual trigger; generates Allure and coverage artifacts
-- `vercel-e2e.yml` - Runs E2E against Vercel preview deployments for PRs
 - `deploy-vercel.yml` - Deploys to production when `E2E Tests` succeeds on `main`
 
 ### Required GitHub Secrets
