@@ -7,14 +7,16 @@ VALUES (
   'cvs',
   'cvs',
   false,
-  10485760, -- 10 MB
+  307200, -- 300 KB
   ARRAY[
     'application/pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   ]
 )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  file_size_limit = EXCLUDED.file_size_limit,
+  allowed_mime_types = EXCLUDED.allowed_mime_types;
 
 -- Users can only see files in their own folder
 CREATE POLICY "Users can view their own CVs"

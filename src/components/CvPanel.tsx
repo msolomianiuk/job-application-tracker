@@ -57,7 +57,7 @@ export default function CvPanel({ userId }: CvPanelProps) {
       return;
     }
     if (file.size > MAX_CV_BYTES) {
-      setError('File is too large (max 10 MB)');
+      setError('File is too large (max 300 KB)');
       return;
     }
 
