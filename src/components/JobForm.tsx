@@ -134,7 +134,9 @@ export default function JobForm({
         </h2>
         <button
           type="button"
-          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          className="cursor-pointer rounded-md p-1 text-gray-500 hover:bg-blue-50 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-blue-900/30 dark:hover:text-blue-300 transition-colors"
+          aria-label={isExpanded ? 'Collapse job form' : 'Expand job form'}
+          aria-expanded={isExpanded}
         >
           <svg
             className={`w-6 h-6 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
