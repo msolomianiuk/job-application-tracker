@@ -1,5 +1,14 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { renderToStaticMarkup } from 'react-dom/server';
+import * as nextNavigation from 'next/navigation';
+
+// JobTracker calls useRouter(), which throws outside a mounted app router.
+// Mock it here (keeping the real exports) so this file passes regardless of
+// which test file runs first.
+mock.module('next/navigation', () => ({
+  ...nextNavigation,
+  useRouter: () => ({ push: () => undefined, refresh: () => undefined }),
+}));
 
 // Bun module mocks persist across test files; the real module's only export
 // is createClient, which is fully replaced here.
