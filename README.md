@@ -139,6 +139,7 @@ Workflows in `.github/workflows/`:
 - `lint.yml` - ESLint on push/PR (`main`, `develop`)
 - `e2e-tests.yml` - E2E on push/PR + manual trigger; generates Allure and coverage artifacts
 - `deploy-vercel.yml` - Deploys to production when `E2E Tests` succeeds on `main`
+- `supabase-keep-alive.yml` - Pings Supabase every 3 days so the free-tier project is never paused for inactivity
 
 ### Required GitHub Secrets
 
